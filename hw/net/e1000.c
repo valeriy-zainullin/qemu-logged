@@ -576,6 +576,13 @@ e1000_send_packet(E1000State *s, const uint8_t *buf, int size)
         qemu_receive_packet(nc, buf, size);
     } else {
         printf("QEMU mod: e1000_send_packet #2 taken.\n");
+        
+        printf("QEMU mod: packet is \"");
+        for (int i = 0; i < size; ++i) {
+            printf("\\x%02x", (unsigned) buf[i]);
+        }
+        printf("\".\n");
+
         qemu_send_packet(nc, buf, size);
     }
     inc_tx_bcast_or_mcast_count(s, buf);
@@ -592,32 +599,42 @@ xmit_seg(E1000State *s)
     struct e1000_tx *tp = &s->tx;
     struct e1000x_txd_props *props = tp->cptse ? &tp->tso_props : &tp->props;
 
+    printf("QEMU mod: xmit_seg #1 taken.\n");
     if (tp->cptse) {
+        printf("QEMU mod: xmit_seg #2 taken.\n");
         css = props->ipcss;
         DBGOUT(TXSUM, "frames %d size %d ipcss %d\n",
                frames, tp->size, css);
         if (props->ip) {    /* IPv4 */
+            printf("QEMU mod: xmit_seg #3 taken.\n");
             stw_be_p(tp->data+css+2, tp->size - css);
             stw_be_p(tp->data+css+4,
                      lduw_be_p(tp->data + css + 4) + frames);
         } else {         /* IPv6 */
+            printf("QEMU mod: xmit_seg #4 taken.\n");
             stw_be_p(tp->data+css+4, tp->size - css);
         }
+        printf("QEMU mod: xmit_seg #5 taken.\n");
         css = props->tucss;
         len = tp->size - css;
         DBGOUT(TXSUM, "tcp %d tucss %d len %d\n", props->tcp, css, len);
         if (props->tcp) {
+            printf("QEMU mod: xmit_seg #6 taken.\n");
             sofar = frames * props->mss;
             stl_be_p(tp->data+css+4, ldl_be_p(tp->data+css+4)+sofar); /* seq */
             if (props->paylen - sofar > props->mss) {
+                printf("QEMU mod: xmit_seg #7 taken.\n");
                 tp->data[css + 13] &= ~9;    /* PSH, FIN */
             } else if (frames) {
+                printf("QEMU mod: xmit_seg #8 taken.\n");
                 e1000x_inc_reg_if_not_full(s->mac_reg, TSCTC);
             }
         } else {    /* UDP */
+            printf("QEMU mod: xmit_seg #9 taken.\n");
             stw_be_p(tp->data+css+4, len);
         }
         if (tp->sum_needed & E1000_TXD_POPTS_TXSM) {
+            printf("QEMU mod: xmit_seg #9 taken.\n");
             unsigned int phsum;
             // add pseudo-header length before checksum calculation
             void *sp = tp->data + props->tucso;
@@ -626,21 +643,26 @@ xmit_seg(E1000State *s)
             phsum = (phsum >> 16) + (phsum & 0xffff);
             stw_be_p(sp, phsum);
         }
+        printf("QEMU mod: xmit_seg #10 taken.\n");
         tp->tso_frames++;
     }
 
     if (tp->sum_needed & E1000_TXD_POPTS_TXSM) {
+        printf("QEMU mod: xmit_seg #11 taken.\n");
         putsum(tp->data, tp->size, props->tucso, props->tucss, props->tucse);
     }
     if (tp->sum_needed & E1000_TXD_POPTS_IXSM) {
+        printf("QEMU mod: xmit_seg #12 taken.\n");
         putsum(tp->data, tp->size, props->ipcso, props->ipcss, props->ipcse);
     }
     if (tp->vlan_needed) {
+        printf("QEMU mod: xmit_seg #13 taken.\n");
         memmove(tp->vlan, tp->data, 4);
         memmove(tp->data, tp->data + 4, 8);
         memcpy(tp->data + 8, tp->vlan_header, 4);
         e1000_send_packet(s, tp->vlan, tp->size + 4);
     } else {
+        printf("QEMU mod: xmit_seg #14 taken.\n");
         e1000_send_packet(s, tp->data, tp->size);
     }
 
@@ -649,11 +671,15 @@ xmit_seg(E1000State *s)
     s->mac_reg[GPTC] = s->mac_reg[TPT];
     s->mac_reg[GOTCL] = s->mac_reg[TOTL];
     s->mac_reg[GOTCH] = s->mac_reg[TOTH];
+
+    printf("QEMU mod: xmit_seg #16 taken.\n");
 }
 
 static void
 process_tx_desc(E1000State *s, struct e1000_tx_desc *dp)
 {
+    printf("QEMU mod: process_tx_desc called.\n");
+
     PCIDevice *d = PCI_DEVICE(s);
     uint32_t txd_lower = le32_to_cpu(dp->lower.data);
     uint32_t dtype = txd_lower & (E1000_TXD_CMD_DEXT | E1000_TXD_DTYP_D);
