@@ -59,10 +59,13 @@ static void filter_rewriter_flush(NetFilterState *nf)
  */
 static int is_tcp_packet(Packet *pkt)
 {
+    printf("QEMU mod: is_tcp_packet called.\n");
     if (!parse_packet_early(pkt) &&
         pkt->ip->ip_p == IPPROTO_TCP) {
+        printf("QEMU mod: is_tcp_packet #1 taken.\n");
         return 1;
     } else {
+        printf("QEMU mod: is_tcp_packet #2 taken.\n");
         return 0;
     }
 }
@@ -256,6 +259,7 @@ static ssize_t colo_rewriter_receive_iov(NetFilterState *nf,
                                          int iovcnt,
                                          NetPacketSent *sent_cb)
 {
+    printf("QEMU mod: colo_rewriter_receive_iov called.\n");
     RewriterState *s = FILTER_REWRITER(nf);
     Connection *conn;
     ConnectionKey key;
@@ -345,6 +349,7 @@ static gboolean offset_is_nonzero(gpointer key,
 static void colo_rewriter_handle_event(NetFilterState *nf, int event,
                                        Error **errp)
 {
+    //printf("QEMU mod: colo_rewriter_handle_event called.\n");
     RewriterState *rs = FILTER_REWRITER(nf);
 
     switch (event) {

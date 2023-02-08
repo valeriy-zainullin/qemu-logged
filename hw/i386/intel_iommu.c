@@ -107,6 +107,7 @@ static void vtd_define_long_wo(IntelIOMMUState *s, hwaddr addr, uint32_t mask)
 /* "External" get/set operations */
 static void vtd_set_quad(IntelIOMMUState *s, hwaddr addr, uint64_t val)
 {
+    printf("QEMU mod: iommu access at 0x%llx, query to set valueto %llu.\n", (unsigned long long)addr, (unsigned long long) val);
     uint64_t oldval = ldq_le_p(&s->csr[addr]);
     uint64_t wmask = ldq_le_p(&s->wmask[addr]);
     uint64_t w1cmask = ldq_le_p(&s->w1cmask[addr]);
@@ -116,6 +117,7 @@ static void vtd_set_quad(IntelIOMMUState *s, hwaddr addr, uint64_t val)
 
 static void vtd_set_long(IntelIOMMUState *s, hwaddr addr, uint32_t val)
 {
+    printf("QEMU mod: iommu access at 0x%llx, query to set valueto %u.\n", (unsigned long long)addr, (unsigned int) val);
     uint32_t oldval = ldl_le_p(&s->csr[addr]);
     uint32_t wmask = ldl_le_p(&s->wmask[addr]);
     uint32_t w1cmask = ldl_le_p(&s->w1cmask[addr]);
@@ -125,6 +127,7 @@ static void vtd_set_long(IntelIOMMUState *s, hwaddr addr, uint32_t val)
 
 static uint64_t vtd_get_quad(IntelIOMMUState *s, hwaddr addr)
 {
+    printf("QEMU mod: iommu access at 0x%llx, query to get value 64bit.\n", (unsigned long long)addr);
     uint64_t val = ldq_le_p(&s->csr[addr]);
     uint64_t womask = ldq_le_p(&s->womask[addr]);
     return val & ~womask;
@@ -132,6 +135,7 @@ static uint64_t vtd_get_quad(IntelIOMMUState *s, hwaddr addr)
 
 static uint32_t vtd_get_long(IntelIOMMUState *s, hwaddr addr)
 {
+    printf("QEMU mod: iommu access at 0x%llx, query to get value 32bit.\n", (unsigned long long)addr);
     uint32_t val = ldl_le_p(&s->csr[addr]);
     uint32_t womask = ldl_le_p(&s->womask[addr]);
     return val & ~womask;

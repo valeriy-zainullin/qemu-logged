@@ -122,6 +122,8 @@ static void net_dgram_rs_finalize(SocketReadState *rs)
 
 static void net_dgram_send(void *opaque)
 {
+    printf("QEMU mod: net_dgram_send called.\n");
+
     NetDgramState *s = opaque;
     int size;
 

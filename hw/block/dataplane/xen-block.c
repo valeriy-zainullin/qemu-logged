@@ -757,6 +757,7 @@ void xen_block_dataplane_start(XenBlockDataPlane *dataplane,
         break;
     }
     default:
+        printf("unknown protocol is here #1.\n");
         error_setg(errp, "unknown protocol %u", dataplane->protocol);
         return;
     }

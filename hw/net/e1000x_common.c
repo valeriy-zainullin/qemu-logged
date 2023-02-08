@@ -33,6 +33,7 @@
 
 bool e1000x_rx_ready(PCIDevice *d, uint32_t *mac)
 {
+    printf("QEMU mod: e1000x_rx_ready called.\n");
     bool link_up = mac[STATUS] & E1000_STATUS_LU;
     bool rx_enabled = mac[RCTL] & E1000_RCTL_EN;
     bool pci_master = d->config[PCI_COMMAND] & PCI_COMMAND_MASTER;
@@ -47,6 +48,7 @@ bool e1000x_rx_ready(PCIDevice *d, uint32_t *mac)
 
 bool e1000x_is_vlan_packet(const uint8_t *buf, uint16_t vet)
 {
+    printf("QEMU mod: e1000x_is_vlan_packet called.\n");
     uint16_t eth_proto = lduw_be_p(buf + 12);
     bool res = (eth_proto == vet);
 
@@ -91,6 +93,7 @@ bool e1000x_rx_group_filter(uint32_t *mac, const uint8_t *buf)
 
 bool e1000x_hw_rx_enabled(uint32_t *mac)
 {
+    printf("QEMU mod: e1000x_is_hw_rx_enabled called.\n");
     if (!(mac[STATUS] & E1000_STATUS_LU)) {
         trace_e1000x_rx_link_down(mac[STATUS]);
         return false;
@@ -106,6 +109,7 @@ bool e1000x_hw_rx_enabled(uint32_t *mac)
 
 bool e1000x_is_oversized(uint32_t *mac, size_t size)
 {
+    printf("QEMU mod: e1000x_is_oversized called.\n");
     /* this is the size past which hardware will
        drop packets when setting LPE=0 */
     static const int maximum_ethernet_vlan_size = 1522;
@@ -127,6 +131,7 @@ bool e1000x_is_oversized(uint32_t *mac, size_t size)
 
 void e1000x_restart_autoneg(uint32_t *mac, uint16_t *phy, QEMUTimer *timer)
 {
+    printf("QEMU mod: e1000x_restart_autoneg called.\n");
     e1000x_update_regs_on_link_down(mac, phy);
     trace_e1000x_link_negotiation_start();
     timer_mod(timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 500);
@@ -135,6 +140,8 @@ void e1000x_restart_autoneg(uint32_t *mac, uint16_t *phy, QEMUTimer *timer)
 void e1000x_reset_mac_addr(NICState *nic, uint32_t *mac_regs,
                            uint8_t *mac_addr)
 {
+    printf("QEMU mod: e1000x_reset_mac_addr called.\n");
+
     int i;
 
     mac_regs[RA] = 0;
@@ -151,6 +158,7 @@ void e1000x_reset_mac_addr(NICState *nic, uint32_t *mac_regs,
 
 void e1000x_update_regs_on_autoneg_done(uint32_t *mac, uint16_t *phy)
 {
+    printf("QEMU mod: e1000x_update_Regs_on_autoneg_done called.\n");
     e1000x_update_regs_on_link_up(mac, phy);
     phy[PHY_LP_ABILITY] |= MII_LPAR_LPACK;
     phy[PHY_STATUS] |= MII_SR_AUTONEG_COMPLETE;
@@ -164,6 +172,8 @@ e1000x_core_prepare_eeprom(uint16_t       *eeprom,
                            uint16_t        dev_id,
                            const uint8_t  *macaddr)
 {
+    printf("QEMU mod: e1000x_core_prepare_eeprom called.\n");
+
     uint16_t checksum = 0;
     int i;
 
@@ -212,6 +222,8 @@ e1000x_update_rx_total_stats(uint32_t *mac,
                              size_t data_size,
                              size_t data_fcs_size)
 {
+    printf("QEMU mod: e1000x_update_rx_total_stats called.\n");
+
     static const int PRCregs[6] = { PRC64, PRC127, PRC255, PRC511,
                                     PRC1023, PRC1522 };
 
@@ -250,6 +262,8 @@ void
 e1000x_read_tx_ctx_descr(struct e1000_context_desc *d,
                          e1000x_txd_props *props)
 {
+
+    printf("QEMU mod: e1000x_read_tx_ctx_descr called.\n");
     uint32_t op = le32_to_cpu(d->cmd_and_length);
 
     props->ipcss = d->lower_setup.ip_fields.ipcss;

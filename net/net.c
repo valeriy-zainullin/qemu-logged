@@ -655,17 +655,22 @@ void qemu_flush_or_purge_queued_packets(NetClientState *nc, bool purge)
 {
     nc->receive_disabled = 0;
 
+    printf("QEMU mod: qemu_flush_or_purge_queued_packets called.\n");
     if (nc->peer && nc->peer->info->type == NET_CLIENT_DRIVER_HUBPORT) {
+	    printf("QEMU mod: qemu_flush_or_purge_queued_packets #1 taken.\n");
         if (net_hub_flush(nc->peer)) {
+	    printf("QEMU mod: qemu_flush_or_purge_queued_packets #2 taken.\n");
             qemu_notify_event();
         }
     }
     if (qemu_net_queue_flush(nc->incoming_queue)) {
+	    printf("QEMU mod: qemu_flush_or_purge_queued_packets #3 taken.\n");
         /* We emptied the queue successfully, signal to the IO thread to repoll
          * the file descriptor (for tap, for example).
          */
         qemu_notify_event();
     } else if (purge) {
+	    printf("QEMU mod: qemu_flush_or_purge_queued_packets #4 taken.\n");
         /* Unable to empty the queue, purge remaining packets */
         qemu_net_queue_purge(nc->incoming_queue, nc->peer);
     }
@@ -673,6 +678,7 @@ void qemu_flush_or_purge_queued_packets(NetClientState *nc, bool purge)
 
 void qemu_flush_queued_packets(NetClientState *nc)
 {
+    printf("QEMU mod: qemu_flush_queued_packets called.\n");
     qemu_flush_or_purge_queued_packets(nc, false);
 }
 
@@ -688,8 +694,10 @@ static ssize_t qemu_send_packet_async_with_flags(NetClientState *sender,
     printf("qemu_send_packet_async:\n");
     qemu_hexdump(stdout, "net", buf, size);
 #endif
+    printf("QEMU mod: qemu_send_packet_async_with_flags called.\n");
 
     if (sender->link_down || !sender->peer) {
+        printf("QEMU mod: qemu_send_packet_async_with_flags #1 taken.\n");
         return size;
     }
 
@@ -697,16 +705,20 @@ static ssize_t qemu_send_packet_async_with_flags(NetClientState *sender,
     ret = filter_receive(sender, NET_FILTER_DIRECTION_TX,
                          sender, flags, buf, size, sent_cb);
     if (ret) {
+        printf("QEMU mod: qemu_send_packet_async_with_flags #2 taken.\n");
         return ret;
     }
 
     ret = filter_receive(sender->peer, NET_FILTER_DIRECTION_RX,
                          sender, flags, buf, size, sent_cb);
     if (ret) {
+        printf("QEMU mod: qemu_send_packet_async_with_flags #3 taken.\n");
         return ret;
     }
 
     queue = sender->peer->incoming_queue;
+
+    printf("QEMU mod: flags = %u.\n", flags);
 
     return qemu_net_queue_send(queue, sender, flags, buf, size, sent_cb);
 }
@@ -715,6 +727,7 @@ ssize_t qemu_send_packet_async(NetClientState *sender,
                                const uint8_t *buf, int size,
                                NetPacketSent *sent_cb)
 {
+    printf("QEMU mod: flags = %u.\n", QEMU_NET_PACKET_FLAG_NONE);
     return qemu_send_packet_async_with_flags(sender, QEMU_NET_PACKET_FLAG_NONE,
                                              buf, size, sent_cb);
 }
@@ -752,15 +765,18 @@ ssize_t qemu_send_packet_raw(NetClientState *nc, const uint8_t *buf, int size)
 static ssize_t nc_sendv_compat(NetClientState *nc, const struct iovec *iov,
                                int iovcnt, unsigned flags)
 {
+    printf("QEMU mod: nc_sendv_compat called.\n");
     uint8_t *buf = NULL;
     uint8_t *buffer;
     size_t offset;
     ssize_t ret;
 
     if (iovcnt == 1) {
+        printf("QEMU mod: nc_sendv_compat #1 taken.\n");
         buffer = iov[0].iov_base;
         offset = iov[0].iov_len;
     } else {
+        printf("QEMU mod: nc_sendv_compat #2 taken.\n");
         offset = iov_size(iov, iovcnt);
         if (offset > NET_BUFSIZE) {
             return -1;
@@ -771,11 +787,15 @@ static ssize_t nc_sendv_compat(NetClientState *nc, const struct iovec *iov,
     }
 
     if (flags & QEMU_NET_PACKET_FLAG_RAW && nc->info->receive_raw) {
+        printf("QEMU mod: nc_sendv_compat #3 taken.\n");
         ret = nc->info->receive_raw(nc, buffer, offset);
     } else {
+        printf("QEMU mod: nc_sendv_compat #4 taken.\n");
+        printf("QEMU_mod: nc->info->receive = %p, nc_sendv_compat = %p.\n", nc->info->receive, nc_sendv_compat);
         ret = nc->info->receive(nc, buffer, offset);
     }
 
+    printf("QEMU mod: nc_sendv_compat #5 taken.\n");
     g_free(buf);
     return ret;
 }
@@ -786,28 +806,36 @@ static ssize_t qemu_deliver_packet_iov(NetClientState *sender,
                                        int iovcnt,
                                        void *opaque)
 {
+    printf("QEMU mod: qemu_deliver_packet_iov called.\n");
     NetClientState *nc = opaque;
     int ret;
 
 
     if (nc->link_down) {
+        printf("QEMU mod: qemu_deliver_packet_iov #1 taken.\n");
         return iov_size(iov, iovcnt);
     }
 
     if (nc->receive_disabled) {
+        printf("QEMU mod: qemu_deliver_packet_iov #2 taken.\n");
         return 0;
     }
 
+    printf("QEMU mod: flags = %u.\n", flags);
     if (nc->info->receive_iov && !(flags & QEMU_NET_PACKET_FLAG_RAW)) {
+        printf("QEMU mod: qemu_deliver_packet_iov #3 taken.\n");
         ret = nc->info->receive_iov(nc, iov, iovcnt);
     } else {
+        printf("QEMU mod: qemu_deliver_packet_iov #4 taken.\n");
         ret = nc_sendv_compat(nc, iov, iovcnt, flags);
     }
 
     if (ret == 0) {
+        printf("QEMU mod: qemu_deliver_packet_iov #5 taken.\n");
         nc->receive_disabled = 1;
     }
 
+    printf("QEMU mod: qemu_deliver_packet_iov #6 taken.\n");
     return ret;
 }
 

@@ -131,7 +131,14 @@ static ssize_t net_slirp_send_packet(const void *pkt, size_t pkt_len,
 
 static ssize_t net_slirp_receive(NetClientState *nc, const uint8_t *buf, size_t size)
 {
+    printf("QEMU mod: net_slirp_receive called.\n");
     SlirpState *s = DO_UPCAST(SlirpState, nc, nc);
+
+    printf("QEMU mod: net_slirp_receive, buf = \"");
+    for (int i = 0; i < size; ++i) {
+        printf("\\x%02x", (unsigned) buf[i]);
+    }
+    printf("\".\n");
 
     slirp_input(s->slirp, buf, size);
 

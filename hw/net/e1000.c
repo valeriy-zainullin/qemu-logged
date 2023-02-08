@@ -44,7 +44,7 @@
 
 static const uint8_t bcast[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-/* #define E1000_DEBUG */
+#define E1000_DEBUG
 
 #ifdef E1000_DEBUG
 enum {
@@ -54,7 +54,7 @@ enum {
     DEBUG_RXFILTER,     DEBUG_PHY,      DEBUG_NOTYET,
 };
 #define DBGBIT(x)    (1<<DEBUG_##x)
-static int debugflags = DBGBIT(TXERR) | DBGBIT(GENERAL);
+static int debugflags = DBGBIT(TXERR) | DBGBIT(GENERAL) | DBGBIT(TX) | DBGBIT(INTERRUPT) | DBGBIT(IO) | DBGBIT(NOTYET) | DBGBIT(TXSUM);
 
 #define DBGOUT(what, fmt, ...) do { \
     if (debugflags & DBGBIT(what)) \
@@ -163,7 +163,10 @@ DECLARE_OBJ_CHECKERS(E1000State, E1000BaseClass,
 static void
 e1000_link_up(E1000State *s)
 {
+    printf("QEMU mod: e1000_link_up is called.\n");
     e1000x_update_regs_on_link_up(s->mac_reg, s->phy_reg);
+
+    printf("QEMU mod: e1000_link_up called.\n");
 
     /* E1000_STATUS_LU is tested by e1000_can_receive() */
     qemu_flush_queued_packets(qemu_get_queue(s->nic));
@@ -172,6 +175,7 @@ e1000_link_up(E1000State *s)
 static void
 e1000_autoneg_done(E1000State *s)
 {
+    printf("QEMU mod: e1000_autoneg_done is called.\n");
     e1000x_update_regs_on_autoneg_done(s->mac_reg, s->phy_reg);
 
     /* E1000_STATUS_LU is tested by e1000_can_receive() */
@@ -379,6 +383,8 @@ static void e1000_reset(void *opaque)
     E1000BaseClass *edc = E1000_GET_CLASS(d);
     uint8_t *macaddr = d->conf.macaddr.a;
 
+    printf("QEMU mod: e1000_reset called.\n");
+
     timer_del(d->autoneg_timer);
     timer_del(d->mit_timer);
     timer_del(d->flush_queue_timer);
@@ -415,6 +421,8 @@ static void
 e1000_flush_queue_timer(void *opaque)
 {
     E1000State *s = opaque;
+
+    printf("QEMU mod: e1000_flush_queue_timer called.\n");
 
     qemu_flush_queued_packets(qemu_get_queue(s->nic));
 }
@@ -560,10 +568,14 @@ e1000_send_packet(E1000State *s, const uint8_t *buf, int size)
     static const int PTCregs[6] = { PTC64, PTC127, PTC255, PTC511,
                                     PTC1023, PTC1522 };
 
+    printf("QEMU mod: called e1000_send_packet.\n");
+
     NetClientState *nc = qemu_get_queue(s->nic);
     if (s->phy_reg[PHY_CTRL] & MII_CR_LOOPBACK) {
+        printf("QEMU mod: e1000_send_packet #1 taken.\n");
         qemu_receive_packet(nc, buf, size);
     } else {
+        printf("QEMU mod: e1000_send_packet #2 taken.\n");
         qemu_send_packet(nc, buf, size);
     }
     inc_tx_bcast_or_mcast_count(s, buf);
@@ -573,6 +585,8 @@ e1000_send_packet(E1000State *s, const uint8_t *buf, int size)
 static void
 xmit_seg(E1000State *s)
 {
+    printf("QEMU mod: xmit_seg is called.\n");
+
     uint16_t len;
     unsigned int frames = s->tx.tso_frames, css, sofar;
     struct e1000_tx *tp = &s->tx;
@@ -760,6 +774,7 @@ start_xmit(E1000State *s)
     uint32_t tdh_start = s->mac_reg[TDH], cause = E1000_ICS_TXQE;
 
     if (!(s->mac_reg[TCTL] & E1000_TCTL_EN)) {
+        printf("QEMU mod: TCTL = 0x%08x\n", s->mac_reg[TCTL]);
         DBGOUT(TX, "tx disabled\n");
         return;
     }
@@ -768,6 +783,8 @@ start_xmit(E1000State *s)
         return;
     }
     s->tx.busy = true;
+
+    printf("QEMU mod: s->mac_reg[TDH] = %u, s->mac_reg[TDT] = %u.\n", s->mac_reg[TDH], s->mac_reg[TDT]);
 
     while (s->mac_reg[TDH] != s->mac_reg[TDT]) {
         base = tx_desc_base(s) +
@@ -873,6 +890,8 @@ static bool e1000_has_rxbufs(E1000State *s, size_t total_size)
 static bool
 e1000_can_receive(NetClientState *nc)
 {
+    printf("QEMU mod: e1000_can_receive called.\n");
+
     E1000State *s = qemu_get_nic_opaque(nc);
 
     return e1000x_rx_ready(&s->parent_obj, s->mac_reg) &&
@@ -915,6 +934,8 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
     size_t desc_offset;
     size_t desc_size;
     size_t total_size;
+
+    printf("QEMU mod: e1000_receive_iov called.\n");
 
     if (!e1000x_hw_rx_enabled(s->mac_reg)) {
         return -1;
@@ -1151,9 +1172,13 @@ set_dlen(E1000State *s, int index, uint32_t val)
 static void
 set_tctl(E1000State *s, int index, uint32_t val)
 {
+    printf("QEMU mod: set_tctl called. index = %d, val = %u.\n", index, val);
+        printf("QEMU mod: TCTL = 0x%08x\n", s->mac_reg[TCTL]);
     s->mac_reg[index] = val;
+        printf("QEMU mod: TCTL = 0x%08x\n", s->mac_reg[TCTL]);
     s->mac_reg[TDT] &= 0xffff;
     start_xmit(s);
+        printf("QEMU mod: TCTL = 0x%08x\n", s->mac_reg[TCTL]);
 }
 
 static void
@@ -1348,6 +1373,8 @@ e1000_mmio_write(void *opaque, hwaddr addr, uint64_t val,
 static uint64_t
 e1000_mmio_read(void *opaque, hwaddr addr, unsigned size)
 {
+
+    printf("QEMU mod: e1000_mmio_read called.\n");
     E1000State *s = opaque;
     unsigned int index = (addr & 0x1ffff) >> 2;
 
@@ -1728,6 +1755,8 @@ static void pci_e1000_realize(PCIDevice *pci_dev, Error **errp)
 
     qemu_macaddr_default_if_unset(&d->conf.macaddr);
     macaddr = d->conf.macaddr.a;
+
+    printf("QEMU mod: e1000 mac is %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx.\n", macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5	]);
 
     e1000x_core_prepare_eeprom(d->eeprom_data,
                                e1000_eeprom_template,

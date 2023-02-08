@@ -33,6 +33,7 @@ ssize_t qemu_netfilter_receive(NetFilterState *nf,
                                int iovcnt,
                                NetPacketSent *sent_cb)
 {
+    printf("QEMU mod: qemu_netfilter_receive called.\n");
     if (qemu_can_skip_netfilter(nf)) {
         return 0;
     }

@@ -63,6 +63,7 @@ static ssize_t filter_buffer_receive_iov(NetFilterState *nf,
                                          int iovcnt,
                                          NetPacketSent *sent_cb)
 {
+    printf("QEMU mod: filter_buffer_receive_iov.\n");
     FilterBufferState *s = FILTER_BUFFER(nf);
 
     /*

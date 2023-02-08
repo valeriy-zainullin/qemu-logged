@@ -154,6 +154,8 @@ static ssize_t qemu_net_queue_deliver(NetQueue *queue,
                                       const uint8_t *data,
                                       size_t size)
 {
+    printf("QEMU mod: qemu_net_queue_deliver called.\n");
+
     ssize_t ret = -1;
     struct iovec iov = {
         .iov_base = (void *)data,
@@ -161,6 +163,7 @@ static ssize_t qemu_net_queue_deliver(NetQueue *queue,
     };
 
     queue->delivering = 1;
+    printf("QEMU mod: queue->deliver = %p, qemu_net_queue_deliver = %p.\n", queue->deliver, qemu_net_queue_deliver);
     ret = queue->deliver(sender, flags, &iov, 1, queue->opaque);
     queue->delivering = 0;
 
@@ -211,15 +214,20 @@ ssize_t qemu_net_queue_send(NetQueue *queue,
                             size_t size,
                             NetPacketSent *sent_cb)
 {
+    printf("QEMU mod: qemu_net_queue_send called.\n");
+
     ssize_t ret;
 
     if (queue->delivering || !qemu_can_send_packet(sender)) {
+        printf("QEMU mod: qemu_net_queue_send #1 taken.\n");
         qemu_net_queue_append(queue, sender, flags, data, size, sent_cb);
         return 0;
     }
 
+    printf("QEMU mod: qemu_net_queue_send #2 taken.\n");
     ret = qemu_net_queue_deliver(queue, sender, flags, data, size);
     if (ret == 0) {
+        printf("QEMU mod: qemu_net_queue_send #3 taken.\n");
         qemu_net_queue_append(queue, sender, flags, data, size, sent_cb);
         return 0;
     }
@@ -272,12 +280,20 @@ void qemu_net_queue_purge(NetQueue *queue, NetClientState *from)
 
 bool qemu_net_queue_flush(NetQueue *queue)
 {
-    if (queue->delivering)
-        return false;
 
+    printf("QEMU mod: qemu_net_queue_flush called.\n");
+    if (queue->delivering) {
+        printf("QEMU mod: qemu_net_queue_flush #1 taken.\n");
+        return false;
+    }
+
+    size_t index = 0;
     while (!QTAILQ_EMPTY(&queue->packets)) {
         NetPacket *packet;
         int ret;
+
+        ++index;
+        printf("QEMU mod: qemu_net_queue_flush iteration #%zu.\n", index);
 
         packet = QTAILQ_FIRST(&queue->packets);
         QTAILQ_REMOVE(&queue->packets, packet, entry);

@@ -24,6 +24,8 @@
 void eth_setup_vlan_headers_ex(struct eth_header *ehdr, uint16_t vlan_tag,
     uint16_t vlan_ethtype, bool *is_new)
 {
+    printf("QEMU mod: eth_setup_vlan_headers_ex called.\n");
+
     struct vlan_header *vhdr = PKT_GET_VLAN_HDR(ehdr);
 
     switch (be16_to_cpu(ehdr->h_proto)) {
@@ -46,6 +48,8 @@ void eth_setup_vlan_headers_ex(struct eth_header *ehdr, uint16_t vlan_tag,
 uint8_t
 eth_get_gso_type(uint16_t l3_proto, uint8_t *l3_hdr, uint8_t l4proto)
 {
+    printf("QEMU mod: eth_get_gso_type called.\n");
+
     uint8_t ecn_state = 0;
 
     if (l3_proto == ETH_P_IP) {
@@ -81,6 +85,7 @@ eth_get_gso_type(uint16_t l3_proto, uint8_t *l3_hdr, uint8_t l4proto)
 uint16_t
 eth_get_l3_proto(const struct iovec *l2hdr_iov, int iovcnt, size_t l2hdr_len)
 {
+    printf("QEMU mod: eth_get_l3_proto called.\n");
     uint16_t proto;
     size_t copied;
     size_t size = iov_size(l2hdr_iov, iovcnt);
@@ -146,6 +151,7 @@ void eth_get_protocols(const struct iovec *iov, int iovcnt,
                        eth_ip4_hdr_info *ip4hdr_info,
                        eth_l4_hdr_info  *l4hdr_info)
 {
+    printf("QEMU mod: eth_get_protocols called.\n");
     int proto;
     bool fragment = false;
     size_t l2hdr_len = eth_get_l2_hdr_length_iov(iov, iovcnt);
@@ -236,6 +242,7 @@ eth_strip_vlan(const struct iovec *iov, int iovcnt, size_t iovoff,
                uint8_t *new_ehdr_buf,
                uint16_t *payload_offset, uint16_t *tci)
 {
+    printf("QEMU mod: eth_strip_vlan called.\n");
     struct vlan_header vlan_hdr;
     struct eth_header *new_ehdr = (struct eth_header *) new_ehdr_buf;
 
@@ -286,6 +293,7 @@ eth_strip_vlan_ex(const struct iovec *iov, int iovcnt, size_t iovoff,
                   uint16_t vet, uint8_t *new_ehdr_buf,
                   uint16_t *payload_offset, uint16_t *tci)
 {
+    printf("QEMU mod: eth_strip_vlan_ex called.\n");
     struct vlan_header vlan_hdr;
     struct eth_header *new_ehdr = (struct eth_header *) new_ehdr_buf;
 
@@ -320,6 +328,7 @@ eth_setup_ip4_fragmentation(const void *l2hdr, size_t l2hdr_len,
                             size_t l3payload_len,
                             size_t frag_offset, bool more_frags)
 {
+    printf("QEMU mod: eth_setup_ip4_fragmentation called.\n");
     const struct iovec l2vec = {
         .iov_base = (void *) l2hdr,
         .iov_len = l2hdr_len
@@ -481,6 +490,7 @@ _eth_get_rss_ex_src_addr(const struct iovec *pkt, int pkt_frags,
 bool eth_parse_ipv6_hdr(const struct iovec *pkt, int pkt_frags,
                         size_t ip6hdr_off, eth_ip6_hdr_info *info)
 {
+    printf("QEMU mod: eth_parse_ipv6_hdr called.\n");
     struct ip6_ext_hdr ext_hdr;
     size_t bytes_read;
     uint8_t curr_ext_hdr_type;
