@@ -59,6 +59,7 @@ bool e1000x_is_vlan_packet(const uint8_t *buf, uint16_t vet)
 
 bool e1000x_rx_group_filter(uint32_t *mac, const uint8_t *buf)
 {
+    printf("QEMU mod: e1000x_rx_group_filter called.\n");
     static const int mta_shift[] = { 4, 3, 2, 0 };
     uint32_t f, ra[2], *rp, rctl = mac[RCTL];
 
@@ -71,14 +72,19 @@ bool e1000x_rx_group_filter(uint32_t *mac, const uint8_t *buf)
         if (!memcmp(buf, (uint8_t *)ra, 6)) {
             trace_e1000x_rx_flt_ucast_match((int)(rp - mac - RA) / 2,
                                             MAC_ARG(buf));
+            printf("QEMU mod: e1000x_rx_group_filter #1 taken.\n");
             return true;
         }
     }
+    printf("QEMU mod: e1000x_rx_group_filter #2 taken.\n");
     trace_e1000x_rx_flt_ucast_mismatch(MAC_ARG(buf));
 
-    f = mta_shift[(rctl >> E1000_RCTL_MO_SHIFT) & 3];
+    f = mta_shift[(rctl >> E1000_RCTL_MO_SHIFT) & 3]; // f = multicast offset from receive control
     f = (((buf[5] << 8) | buf[4]) >> f) & 0xfff;
+    printf("QEMU mod: e1000x_rx_group_filter, mac[MTA + (f >> 5)] = %x.\n", mac[MTA + (f >> 5)]);
+    printf("QEMU mod: e1000x_rx_group_filter, mac[MTA + (f >> 5)] & (1 << (f & 0x1f))] = %u.\n", mac[MTA + (f >> 5)] & (1 << (f & 0x1f)));
     if (mac[MTA + (f >> 5)] & (1 << (f & 0x1f))) {
+        printf("QEMU mod: e1000x_rx_group_filter #3 taken.\n");
         e1000x_inc_reg_if_not_full(mac, MPRC);
         return true;
     }
@@ -88,6 +94,7 @@ bool e1000x_rx_group_filter(uint32_t *mac, const uint8_t *buf)
                                          f >> 5,
                                          mac[MTA + (f >> 5)]);
 
+    printf("QEMU mod: e1000x_rx_group_filter #4 taken.\n");
     return false;
 }
 

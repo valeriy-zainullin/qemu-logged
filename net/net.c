@@ -690,6 +690,20 @@ static ssize_t qemu_send_packet_async_with_flags(NetClientState *sender,
     NetQueue *queue;
     int ret;
 
+    #if !defined(RETURN_ADDR_OFFSET_PRINT)
+        #define RETURN_ADDR_OFFSET_PRINT(func) \
+        { \
+            int64_t value = (int64_t) (uint64_t) __builtin_return_address(0) - (int64_t) (uint64_t) func; \
+            if (value < 0) { \
+                printf("QEMU mod: %s, return_address - func_addr = -0x%llx.\n", __func__, (unsigned long long) (-value)); \
+            } else { \
+                printf("QEMU mod: %s, return_address - func_addr = 0x%llx.\n", __func__, (unsigned long long) value); \
+            } \
+        }
+    #endif
+    RETURN_ADDR_OFFSET_PRINT(qemu_send_packet_async_with_flags);
+
+
 #ifdef DEBUG_NET
     printf("qemu_send_packet_async:\n");
     qemu_hexdump(stdout, "net", buf, size);
@@ -824,6 +838,7 @@ static ssize_t qemu_deliver_packet_iov(NetClientState *sender,
     printf("QEMU mod: flags = %u.\n", flags);
     if (nc->info->receive_iov && !(flags & QEMU_NET_PACKET_FLAG_RAW)) {
         printf("QEMU mod: qemu_deliver_packet_iov #3 taken.\n");
+        printf("QEMU mod: qemu_deliver_packet_iov = %p, nc->info->receive_iov = %p.\n", qemu_deliver_packet_iov, nc->info->receive_iov);
         ret = nc->info->receive_iov(nc, iov, iovcnt);
     } else {
         printf("QEMU mod: qemu_deliver_packet_iov #4 taken.\n");

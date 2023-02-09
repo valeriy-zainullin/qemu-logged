@@ -156,6 +156,19 @@ static ssize_t qemu_net_queue_deliver(NetQueue *queue,
 {
     printf("QEMU mod: qemu_net_queue_deliver called.\n");
 
+    #if !defined(RETURN_ADDR_OFFSET_PRINT)
+        #define RETURN_ADDR_OFFSET_PRINT(func) \
+        { \
+            int64_t value = (int64_t) (uint64_t) __builtin_return_address(0) - (int64_t) (uint64_t) func; \
+            if (value < 0) { \
+                printf("QEMU mod: %s, return_address - func_addr = -0x%llx.\n", __func__, (unsigned long long) (-value)); \
+            } else { \
+                printf("QEMU mod: %s, return_address - func_addr = 0x%llx.\n", __func__, (unsigned long long) value); \
+            } \
+        }
+    #endif
+    RETURN_ADDR_OFFSET_PRINT(qemu_net_queue_deliver);
+
     ssize_t ret = -1;
     struct iovec iov = {
         .iov_base = (void *)data,
@@ -215,6 +228,34 @@ ssize_t qemu_net_queue_send(NetQueue *queue,
                             NetPacketSent *sent_cb)
 {
     printf("QEMU mod: qemu_net_queue_send called.\n");
+
+    #if !defined(RETURN_ADDR_OFFSET_PRINT)
+        #define RETURN_ADDR_OFFSET_PRINT(func) \
+        { \
+            int64_t value = (int64_t) (uint64_t) __builtin_return_address(0) - (int64_t) (uint64_t) func; \
+            if (value < 0) { \
+                printf("QEMU mod: %s, return_address - func_addr = -0x%llx.\n", __func__, (unsigned long long) (-value)); \
+            } else { \
+                printf("QEMU mod: %s, return_address - func_addr = 0x%llx.\n", __func__, (unsigned long long) value); \
+            } \
+        }
+    #endif
+    RETURN_ADDR_OFFSET_PRINT(qemu_net_queue_send);
+
+    {
+        printf("QEMU mod: qemu_net_queue_send, content = \"");
+        char* buffer = (char*) data;
+        size_t buffer_size = size;
+        for (size_t i = 0; i < buffer_size; ++i) {
+            if (('a' <= buffer[i] && buffer[i] <= 'z') || ('A' <= buffer[i] && buffer[i] <= 'Z') || ('0' <= buffer[i] && buffer[i] <= '9')) {
+                printf("%c", buffer[i]);
+            } else {
+                printf("\\%02x", (unsigned) (* (uint8_t*) &buffer[i]));                
+            }
+        }
+        printf("\".\n");
+    }
+
 
     ssize_t ret;
 

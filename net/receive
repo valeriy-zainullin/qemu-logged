@@ -1,0 +1,2854 @@
+announce.c: *  Self-announce
+announce.c: *  (c) 2017-2019 Red Hat, Inc.
+announce.c: * See the COPYING file in the top-level directory.
+announce.c:#include "qapi/clone-visitor.h"
+announce.c:#include "qapi/qapi-visit-net.h"
+announce.c:#include "qapi/qapi-commands-net.h"
+announce.c:    step =  timer->params.initial +
+announce.c:            (timer->params.rounds - timer->round - 1) *
+announce.c:            timer->params.step;
+announce.c:    if (step < 0 || step > timer->params.max) {
+announce.c:        step = timer->params.max;
+announce.c:    timer_mod(timer->tm, qemu_clock_get_ms(timer->type) + step);
+announce.c:    if (timer->tm) {
+announce.c:        timer_free(timer->tm);
+announce.c:        timer->tm = NULL;
+announce.c:    qapi_free_strList(timer->params.interfaces);
+announce.c:    timer->params.interfaces = NULL;
+announce.c:    if (free_named && timer->params.id) {
+announce.c:        list_timer = g_datalist_get_data(&named_timers, timer->params.id);
+announce.c:        g_datalist_remove_data(&named_timers, timer->params.id);
+announce.c:    trace_qemu_announce_timer_del(free_named, free_timer, timer->params.id);
+announce.c:    g_free(timer->params.id);
+announce.c:    timer->params.id = NULL;
+announce.c:    QAPI_CLONE_MEMBERS(AnnounceParameters, &timer->params, params);
+announce.c:    timer->round = params->rounds;
+announce.c:    timer->type = type;
+announce.c:    timer->tm = timer_new_ms(type, cb, opaque);
+announce.c:             mac->a[0], mac->a[1], mac->a[2], mac->a[3], mac->a[4], mac->a[5]);
+announce.c:    if (timer->params.has_interfaces) {
+announce.c:        strList *entry = timer->params.interfaces;
+announce.c:            if (!strcmp(entry->value, nic->ncs->name)) {
+announce.c:            entry = entry->next;
+announce.c:    trace_qemu_announce_self_iter(timer->params.id ?: "_",
+announce.c:                                  nic->ncs->name,
+announce.c:                                  qemu_ether_ntoa(&nic->conf->macaddr), skip);
+announce.c:        len = announce_self_create(buf, nic->conf->macaddr.a);
+announce.c:        if (nic->ncs->info->announce) {
+announce.c:            nic->ncs->info->announce(nic->ncs);
+announce.c:    if (--timer->round) {
+announce.c:    if (params->rounds) {
+announce.c:    if (!params->id) {
+announce.c:        params->id = g_strdup("");
+announce.c:    named_timer = g_datalist_get_data(&named_timers, params->id);
+announce.c:        g_datalist_set_data(&named_timers, params->id, named_timer);
+can/can_core.c: * Copyright (c) 2013-2014 Jin Yang
+can/can_core.c: * Copyright (c) 2014-2018 Pavel Pisa
+can/can_core.c:    0, 1, 2, 3, 4, 5, 6, 7, 8,                              /* 0 - 8 */
+can/can_core.c:    9, 9, 9, 9,                                             /* 9 - 12 */
+can/can_core.c:    10, 10, 10, 10,                                         /* 13 - 16 */
+can/can_core.c:    11, 11, 11, 11,                                         /* 17 - 20 */
+can/can_core.c:    12, 12, 12, 12,                                         /* 21 - 24 */
+can/can_core.c:    13, 13, 13, 13, 13, 13, 13, 13,                         /* 25 - 32 */
+can/can_core.c:    14, 14, 14, 14, 14, 14, 14, 14,                         /* 33 - 40 */
+can/can_core.c:    14, 14, 14, 14, 14, 14, 14, 14,                         /* 41 - 48 */
+can/can_core.c:    15, 15, 15, 15, 15, 15, 15, 15,                         /* 49 - 56 */
+can/can_core.c:    15, 15, 15, 15, 15, 15, 15, 15                          /* 57 - 64 */
+can/can_core.c:    QTAILQ_INIT(&bus->clients);
+can/can_core.c:    client->bus = bus;
+can/can_core.c:    QTAILQ_INSERT_TAIL(&bus->clients, client, next);
+can/can_core.c:    CanBusState *bus = client->bus;
+can/can_core.c:    QTAILQ_REMOVE(&bus->clients, client, next);
+can/can_core.c:    client->bus = NULL;
+can/can_core.c:    CanBusState *bus = client->bus;
+can/can_core.c:        return -1;
+can/can_core.c:    QTAILQ_FOREACH(peer, &bus->clients, next) {
+can/can_core.c:        if (peer->info->can_receive(peer)) {
+can/can_core.c:            if (peer->info->receive(peer, frames, frames_cnt) > 0) {
+can/can_core.c:    if (((can_id | filter->can_mask) & QEMU_CAN_ERR_FLAG)) {
+can/can_core.c:        return (filter->can_mask & QEMU_CAN_ERR_FLAG) != 0;
+can/can_core.c:    m = (can_id & filter->can_mask) == (filter->can_id & filter->can_mask);
+can/can_core.c:    return filter->can_id & QEMU_CAN_INV_FILTER ? !m : m;
+can/can_core.c:    uc_klass->can_be_deleted = can_bus_can_be_deleted;
+can/can_host.c: * Copyright (c) 2013-2014 Jin Yang
+can/can_host.c: * Copyright (c) 2014-2018 Pavel Pisa
+can/can_host.c:    can_bus_remove_client(&ch->bus_client);
+can/can_host.c:    chc->disconnect(ch);
+can/can_host.c:    if (ch->bus == NULL) {
+can/can_host.c:    chc->connect(ch, &local_err);
+can/can_host.c:    can_bus_insert_client(ch->bus, &ch->bus_client);
+can/can_host.c:    klass->unparent = can_host_unparent;
+can/can_host.c:    uc_klass->complete = can_host_complete;
+can/can_socketcan.c: * Copyright (c) 2013-2014 Jin Yang
+can/can_socketcan.c: * Copyright (c) 2014-2018 Pavel Pisa
+can/can_socketcan.c:#include "qemu/main-loop.h"
+can/can_socketcan.c:#include "qemu/error-report.h"
+can/can_socketcan.c:#define TYPE_CAN_HOST_SOCKETCAN "can-host-socketcan"
+can/can_socketcan.c:                msg->can_id & QEMU_CAN_EFF_MASK,
+can/can_socketcan.c:                msg->can_dlc,
+can/can_socketcan.c:                msg->can_id & QEMU_CAN_EFF_FLAG ? "EFF" : "SFF",
+can/can_socketcan.c:                msg->can_id & QEMU_CAN_RTR_FLAG ? "RTR" : "DAT");
+can/can_socketcan.c:        for (i = 0; i < msg->can_dlc; i++) {
+can/can_socketcan.c:            fprintf(logfile, " %02X", msg->data[i]);
+can/can_socketcan.c:    c->bufcnt = read(c->fd, c->buf, sizeof(qemu_can_frame));
+can/can_socketcan.c:    if (c->bufcnt < 0) {
+can/can_socketcan.c:    if (!ch->bus_client.fd_mode) {
+can/can_socketcan.c:        c->buf[0].flags = 0;
+can/can_socketcan.c:        if (c->bufcnt > CAN_MTU) {
+can/can_socketcan.c:            c->buf[0].flags |= QEMU_CAN_FRMF_TYPE_FD;
+can/can_socketcan.c:    can_bus_client_send(&ch->bus_client, c->buf, 1);
+can/can_socketcan.c:        can_host_socketcan_display_msg(c->buf);
+can/can_socketcan.c:    if (c->fd < 0) {
+can/can_socketcan.c:        return -1;
+can/can_socketcan.c:    if (frames->flags & QEMU_CAN_FRMF_TYPE_FD) {
+can/can_socketcan.c:        if (!ch->bus_client.fd_mode) {
+can/can_socketcan.c:    res = write(c->fd, frames, len);
+can/can_socketcan.c:        return -1;
+can/can_socketcan.c:        return -1;
+can/can_socketcan.c:    if (c->fd >= 0) {
+can/can_socketcan.c:        qemu_set_fd_handler(c->fd, NULL, NULL, c);
+can/can_socketcan.c:        close(c->fd);
+can/can_socketcan.c:        c->fd = -1;
+can/can_socketcan.c:    g_free(c->rfilter);
+can/can_socketcan.c:    c->rfilter = NULL;
+can/can_socketcan.c:    c->rfilter_num = 0;
+can/can_socketcan.c:    if (!c->ifname) {
+can/can_socketcan.c:    strcpy(ifr.ifr_name, c->ifname);
+can/can_socketcan.c:                         c->ifname);
+can/can_socketcan.c:                         c->ifname);
+can/can_socketcan.c:        /* interface is ok - try to switch the socket into CAN FD mode */
+can/can_socketcan.c:                        c->ifname);
+can/can_socketcan.c:            c->parent.bus_client.fd_mode = true;
+can/can_socketcan.c:    c->err_mask = 0xffffffff; /* Receive error frame. */
+can/can_socketcan.c:                   &c->err_mask, sizeof(c->err_mask));
+can/can_socketcan.c:    c->rfilter_num = 1;
+can/can_socketcan.c:    c->rfilter = g_new(struct qemu_can_filter, c->rfilter_num);
+can/can_socketcan.c:    c->rfilter[0].can_id = 0;
+can/can_socketcan.c:    c->rfilter[0].can_mask = 0;
+can/can_socketcan.c:    c->rfilter[0].can_mask &= ~CAN_ERR_FLAG;
+can/can_socketcan.c:    setsockopt(s, SOL_CAN_RAW, CAN_RAW_FILTER, c->rfilter,
+can/can_socketcan.c:               c->rfilter_num * sizeof(struct qemu_can_filter));
+can/can_socketcan.c:                         c->ifname);
+can/can_socketcan.c:    c->fd = s;
+can/can_socketcan.c:    ch->bus_client.info = &can_host_socketcan_bus_client_info;
+can/can_socketcan.c:    qemu_set_fd_handler(c->fd, can_host_socketcan_read, NULL, c);
+can/can_socketcan.c:    g_free(c->rfilter);
+can/can_socketcan.c:    c->rfilter = NULL;
+can/can_socketcan.c:    c->rfilter_num = 0;
+can/can_socketcan.c:    return g_strdup(c->ifname);
+can/can_socketcan.c:                   sizeof(ifr.ifr_name) - 1);
+can/can_socketcan.c:    if (c->fd != -1) {
+can/can_socketcan.c:    g_free(c->ifname);
+can/can_socketcan.c:    c->ifname = g_strdup(value);
+can/can_socketcan.c:    c->fd = -1;
+can/can_socketcan.c:    chc->connect = can_host_socketcan_connect;
+can/can_socketcan.c:    chc->disconnect = can_host_socketcan_disconnect;
+checksum.c:    for (i = 0; i < len - 1; i += 2) {
+checksum.c:    switch (lduw_be_p(&PKT_GET_ETH_HDR(data)->h_proto)) {
+checksum.c:        if (lduw_be_p(&PKT_GET_VLAN_HDR(data)->h_proto) == ETH_P_VLAN) {
+checksum.c:    length -= mac_hdr_len;
+checksum.c:        stw_he_p(&ip->ip_sum, 0);
+checksum.c:        stw_be_p(&ip->ip_sum, csum);
+checksum.c:    ip_len = lduw_be_p(&ip->ip_len);
+checksum.c:    ip_len -= IP_HDR_GET_LEN(ip);
+checksum.c:    switch (ip->ip_p) {
+checksum.c:        stw_he_p(&tcp->th_sum, 0);
+checksum.c:        csum = net_checksum_tcpudp(ip_len, ip->ip_p,
+checksum.c:                                   (uint8_t *)&ip->ip_src,
+checksum.c:        stw_be_p(&tcp->th_sum, csum);
+checksum.c:        stw_he_p(&udp->uh_sum, 0);
+checksum.c:        csum = net_checksum_tcpudp(ip_len, ip->ip_p,
+checksum.c:                                   (uint8_t *)&ip->ip_src,
+checksum.c:        stw_be_p(&udp->uh_sum, csum);
+checksum.c:            size_t len = MIN((iovec_off + iov[i].iov_len) - iov_off , size);
+checksum.c:            void *chunk_buf = iov[i].iov_base + (iov_off - iovec_off);
+checksum.c:            size -= len;
+clients.h: * Copyright (c) 2003-2008 Fabrice Bellard
+colo-compare.c: * COarse-grain LOck-stepping Virtual Machines for Non-stop Service (COLO)
+colo-compare.c: * later.  See the COPYING file in the top-level directory.
+colo-compare.c:#include "qemu/error-report.h"
+colo-compare.c:#include "chardev/char-fe.h"
+colo-compare.c:#include "net/colo-compare.h"
+colo-compare.c:#include "block/aio-wait.h"
+colo-compare.c:#define TYPE_COLO_COMPARE "colo-compare"
+colo-compare.c: *  +---------------+   +---------------+         +---------------+
+colo-compare.c: *  |   conn list   + - >      conn     + ------- >      conn     + -- > ......
+colo-compare.c: *  +---------------+   +---------------+         +---------------+
+colo-compare.c: *  +---------------+ +---v----+  +---v----+    +---v----+ +---v----+
+colo-compare.c: *                    +--------+  +--------+    +--------+ +--------+
+colo-compare.c: *                    +---v----+  +---v----+    +---v----+ +---v----+
+colo-compare.c: *                    +--------+  +--------+    +--------+ +--------+
+colo-compare.c: *                    +---v----+  +---v----+    +---v----+ +---v----+
+colo-compare.c: *                    +--------+  +--------+    +--------+ +--------+
+colo-compare.c:        error_report("Notify Xen COLO-frame failed");
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:    return b->tcp_seq - a->tcp_seq;
+colo-compare.c:    tcphd = (struct tcp_hdr *)pkt->transport_header;
+colo-compare.c:    pkt->tcp_seq = ntohl(tcphd->th_seq);
+colo-compare.c:    pkt->tcp_ack = ntohl(tcphd->th_ack);
+colo-compare.c:    *max_ack = pkt->tcp_ack - *max_ack > 0 ? pkt->tcp_ack : *max_ack;
+colo-compare.c:    pkt->header_size = pkt->transport_header - (uint8_t *)pkt->data
+colo-compare.c:                       + (tcphd->th_off << 2);
+colo-compare.c:    pkt->payload_size = pkt->size - pkt->header_size;
+colo-compare.c:    pkt->seq_end = pkt->tcp_seq + pkt->payload_size;
+colo-compare.c:    pkt->flags = tcphd->th_flags;
+colo-compare.c:        if (pkt->ip->ip_p == IPPROTO_TCP) {
+colo-compare.c: * Return 0 on success, if return -1 means the pkt
+colo-compare.c:        pkt = packet_new(s->pri_rs.buf,
+colo-compare.c:                         s->pri_rs.packet_len,
+colo-compare.c:                         s->pri_rs.vnet_hdr_len);
+colo-compare.c:        pkt = packet_new(s->sec_rs.buf,
+colo-compare.c:                         s->sec_rs.packet_len,
+colo-compare.c:                         s->sec_rs.vnet_hdr_len);
+colo-compare.c:        return -1;
+colo-compare.c:    conn = connection_get(s->connection_track_table,
+colo-compare.c:                          &s->conn_list);
+colo-compare.c:    if (!conn->processing) {
+colo-compare.c:        g_queue_push_tail(&s->conn_list, conn);
+colo-compare.c:        conn->processing = true;
+colo-compare.c:        ret = colo_insert_packet(&conn->primary_list, pkt, &conn->pack);
+colo-compare.c:        ret = colo_insert_packet(&conn->secondary_list, pkt, &conn->sack);
+colo-compare.c:        return (int32_t)(seq1 - seq2) > 0;
+colo-compare.c:                           pkt->data,
+colo-compare.c:                           pkt->size,
+colo-compare.c:                           pkt->vnet_hdr_len,
+colo-compare.c: * TODO support ip fragment, Out-Of-Order
+colo-compare.c:        strcpy(pri_ip_src, inet_ntoa(ppkt->ip->ip_src));
+colo-compare.c:        strcpy(pri_ip_dst, inet_ntoa(ppkt->ip->ip_dst));
+colo-compare.c:        strcpy(sec_ip_src, inet_ntoa(spkt->ip->ip_src));
+colo-compare.c:        strcpy(sec_ip_dst, inet_ntoa(spkt->ip->ip_dst));
+colo-compare.c:        trace_colo_compare_ip_info(ppkt->size, pri_ip_src,
+colo-compare.c:                                   pri_ip_dst, spkt->size,
+colo-compare.c:    return memcmp(ppkt->data + poffset, spkt->data + soffset, len);
+colo-compare.c:    if (ppkt->tcp_seq == spkt->tcp_seq && ppkt->seq_end == spkt->seq_end) {
+colo-compare.c:                                        ppkt->header_size, spkt->header_size,
+colo-compare.c:                                        ppkt->payload_size)) {
+colo-compare.c:    if (!after(ppkt->seq_end, spkt->seq_end)) {
+colo-compare.c:                                        ppkt->header_size + ppkt->offset,
+colo-compare.c:                                        spkt->header_size + spkt->offset,
+colo-compare.c:                                        ppkt->payload_size - ppkt->offset)) {
+colo-compare.c:            if (!after(ppkt->tcp_ack, max_ack)) {
+colo-compare.c:                spkt->offset += ppkt->payload_size - ppkt->offset;
+colo-compare.c:                                        ppkt->header_size + ppkt->offset,
+colo-compare.c:                                        spkt->header_size + spkt->offset,
+colo-compare.c:                                        spkt->payload_size - spkt->offset)) {
+colo-compare.c:            ppkt->offset += spkt->payload_size - spkt->offset;
+colo-compare.c:    uint32_t min_ack = conn->pack - conn->sack > 0 ?
+colo-compare.c:                       conn->sack : conn->pack;
+colo-compare.c:    if (g_queue_is_empty(&conn->primary_list)) {
+colo-compare.c:    ppkt = g_queue_pop_tail(&conn->primary_list);
+colo-compare.c:    if (g_queue_is_empty(&conn->secondary_list)) {
+colo-compare.c:        g_queue_push_tail(&conn->primary_list, ppkt);
+colo-compare.c:    spkt = g_queue_pop_tail(&conn->secondary_list);
+colo-compare.c:    if (ppkt->tcp_seq == ppkt->seq_end) {
+colo-compare.c:    if (ppkt && conn->compare_seq && !after(ppkt->seq_end, conn->compare_seq)) {
+colo-compare.c:    if (spkt->tcp_seq == spkt->seq_end) {
+colo-compare.c:        if (conn->compare_seq && !after(spkt->seq_end, conn->compare_seq)) {
+colo-compare.c:            g_queue_push_tail(&conn->secondary_list, spkt);
+colo-compare.c:                                    ppkt->tcp_seq, ppkt->tcp_ack,
+colo-compare.c:                                    ppkt->header_size, ppkt->payload_size,
+colo-compare.c:                                    ppkt->offset, ppkt->flags);
+colo-compare.c:                                    spkt->tcp_seq, spkt->tcp_ack,
+colo-compare.c:                                    spkt->header_size, spkt->payload_size,
+colo-compare.c:                                    spkt->offset, spkt->flags);
+colo-compare.c:            conn->compare_seq = ppkt->seq_end;
+colo-compare.c:            g_queue_push_tail(&conn->secondary_list, spkt);
+colo-compare.c:            conn->compare_seq = spkt->seq_end;
+colo-compare.c:            conn->compare_seq = ppkt->seq_end;
+colo-compare.c:        g_queue_push_tail(&conn->primary_list, ppkt);
+colo-compare.c:        g_queue_push_tail(&conn->secondary_list, spkt);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare ppkt", ppkt->data, ppkt->size);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare spkt", spkt->data, spkt->size);
+colo-compare.c:    uint16_t network_header_length = ppkt->ip->ip_hl << 2;
+colo-compare.c:    uint16_t offset = network_header_length + ETH_HLEN + ppkt->vnet_hdr_len;
+colo-compare.c:    if (ppkt->size != spkt->size) {
+colo-compare.c:        return -1;
+colo-compare.c:                                    ppkt->size - offset)) {
+colo-compare.c:        trace_colo_compare_udp_miscompare("primary pkt size", ppkt->size);
+colo-compare.c:        trace_colo_compare_udp_miscompare("Secondary pkt size", spkt->size);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare pri pkt", ppkt->data, ppkt->size);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare sec pkt", spkt->data, spkt->size);
+colo-compare.c:        return -1;
+colo-compare.c:    uint16_t network_header_length = ppkt->ip->ip_hl << 2;
+colo-compare.c:    uint16_t offset = network_header_length + ETH_HLEN + ppkt->vnet_hdr_len;
+colo-compare.c:    if (ppkt->size != spkt->size) {
+colo-compare.c:        return -1;
+colo-compare.c:                                    ppkt->size - offset)) {
+colo-compare.c:                                           ppkt->size);
+colo-compare.c:                                           spkt->size);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare pri pkt", ppkt->data, ppkt->size);
+colo-compare.c:        qemu_hexdump(stderr, "colo-compare sec pkt", spkt->data, spkt->size);
+colo-compare.c:        return -1;
+colo-compare.c:    uint16_t offset = ppkt->vnet_hdr_len;
+colo-compare.c:    if (ppkt->size != spkt->size) {
+colo-compare.c:        return -1;
+colo-compare.c:                                       ppkt->size - offset);
+colo-compare.c:    if ((now - pkt->creation_ms) > (*check_time)) {
+colo-compare.c:        trace_colo_old_packet_check_found(pkt->creation_ms);
+colo-compare.c:    if (!g_queue_is_empty(&conn->primary_list)) {
+colo-compare.c:        if (g_queue_find_custom(&conn->primary_list,
+colo-compare.c:                                &s->compare_timeout,
+colo-compare.c:    if (!g_queue_is_empty(&conn->secondary_list)) {
+colo-compare.c:        if (g_queue_find_custom(&conn->secondary_list,
+colo-compare.c:                                &s->compare_timeout,
+colo-compare.c:    g_queue_find_custom(&s->conn_list, s,
+colo-compare.c:    while (!g_queue_is_empty(&conn->primary_list) &&
+colo-compare.c:           !g_queue_is_empty(&conn->secondary_list)) {
+colo-compare.c:        pkt = g_queue_pop_tail(&conn->primary_list);
+colo-compare.c:        result = g_queue_find_custom(&conn->secondary_list,
+colo-compare.c:            packet_destroy(result->data, NULL);
+colo-compare.c:            g_queue_delete_link(&conn->secondary_list, result);
+colo-compare.c:            g_queue_push_tail(&conn->primary_list, pkt);
+colo-compare.c:    switch (conn->ip_proto) {
+colo-compare.c:    CompareState *s = sendco->s;
+colo-compare.c:    while (!g_queue_is_empty(&sendco->send_list)) {
+colo-compare.c:        SendEntry *entry = g_queue_pop_tail(&sendco->send_list);
+colo-compare.c:        uint32_t len = htonl(entry->size);
+colo-compare.c:        ret = qemu_chr_fe_write_all(sendco->chr, (uint8_t *)&len, sizeof(len));
+colo-compare.c:            g_free(entry->buf);
+colo-compare.c:        if (!sendco->notify_remote_frame && s->vnet_hdr) {
+colo-compare.c:             * We send vnet header len make other module(like filter-redirector)
+colo-compare.c:            len = htonl(entry->vnet_hdr_len);
+colo-compare.c:            ret = qemu_chr_fe_write_all(sendco->chr,
+colo-compare.c:                g_free(entry->buf);
+colo-compare.c:        ret = qemu_chr_fe_write_all(sendco->chr,
+colo-compare.c:                                    (uint8_t *)entry->buf,
+colo-compare.c:                                    entry->size);
+colo-compare.c:        if (ret != entry->size) {
+colo-compare.c:            g_free(entry->buf);
+colo-compare.c:        g_free(entry->buf);
+colo-compare.c:    sendco->ret = 0;
+colo-compare.c:    while (!g_queue_is_empty(&sendco->send_list)) {
+colo-compare.c:        SendEntry *entry = g_queue_pop_tail(&sendco->send_list);
+colo-compare.c:        g_free(entry->buf);
+colo-compare.c:    sendco->ret = ret < 0 ? ret : -EIO;
+colo-compare.c:    sendco->co = NULL;
+colo-compare.c:    sendco->done = true;
+colo-compare.c:        sendco = &s->notify_sendco;
+colo-compare.c:        sendco = &s->out_sendco;
+colo-compare.c:        return -1;
+colo-compare.c:    entry->size = size;
+colo-compare.c:    entry->vnet_hdr_len = vnet_hdr_len;
+colo-compare.c:        entry->buf = buf;
+colo-compare.c:        entry->buf = g_malloc(size);
+colo-compare.c:        memcpy(entry->buf, buf, size);
+colo-compare.c:    g_queue_push_tail(&sendco->send_list, entry);
+colo-compare.c:    if (sendco->done) {
+colo-compare.c:        sendco->co = qemu_coroutine_create(_compare_chr_send, sendco);
+colo-compare.c:        sendco->done = false;
+colo-compare.c:        qemu_coroutine_enter(sendco->co);
+colo-compare.c:        if (sendco->done) {
+colo-compare.c:            return sendco->ret;
+colo-compare.c:    ret = net_fill_rstate(&s->pri_rs, buf, size);
+colo-compare.c:    if (ret == -1) {
+colo-compare.c:        qemu_chr_fe_set_handlers(&s->chr_pri_in, NULL, NULL, NULL, NULL,
+colo-compare.c:        error_report("colo-compare primary_in error");
+colo-compare.c:    ret = net_fill_rstate(&s->sec_rs, buf, size);
+colo-compare.c:    if (ret == -1) {
+colo-compare.c:        qemu_chr_fe_set_handlers(&s->chr_sec_in, NULL, NULL, NULL, NULL,
+colo-compare.c:        error_report("colo-compare secondary_in error");
+colo-compare.c:    ret = net_fill_rstate(&s->notify_rs, buf, size);
+colo-compare.c:    if (ret == -1) {
+colo-compare.c:        qemu_chr_fe_set_handlers(&s->chr_notify_dev, NULL, NULL, NULL, NULL,
+colo-compare.c:        error_report("colo-compare notify_dev error");
+colo-compare.c:    timer_mod(s->packet_check_timer, qemu_clock_get_ms(QEMU_CLOCK_HOST) +
+colo-compare.c:              s->expired_scan_cycle);
+colo-compare.c:        s->event = event;
+colo-compare.c:        qemu_bh_schedule(s->event_bh);
+colo-compare.c:    AioContext *ctx = iothread_get_aio_context(s->iothread);
+colo-compare.c:    s->packet_check_timer = aio_timer_new(ctx, QEMU_CLOCK_HOST,
+colo-compare.c:    timer_mod(s->packet_check_timer, qemu_clock_get_ms(QEMU_CLOCK_HOST) +
+colo-compare.c:              s->expired_scan_cycle);
+colo-compare.c:    if (s->packet_check_timer) {
+colo-compare.c:        timer_free(s->packet_check_timer);
+colo-compare.c:        s->packet_check_timer = NULL;
+colo-compare.c:    switch (s->event) {
+colo-compare.c:        g_queue_foreach(&s->conn_list, colo_flush_packets, s);
+colo-compare.c:    event_unhandled_count--;
+colo-compare.c:    AioContext *ctx = iothread_get_aio_context(s->iothread);
+colo-compare.c:    object_ref(OBJECT(s->iothread));
+colo-compare.c:    s->worker_context = iothread_get_g_main_context(s->iothread);
+colo-compare.c:    qemu_chr_fe_set_handlers(&s->chr_pri_in, compare_chr_can_read,
+colo-compare.c:                             s, s->worker_context, true);
+colo-compare.c:    qemu_chr_fe_set_handlers(&s->chr_sec_in, compare_chr_can_read,
+colo-compare.c:                             s, s->worker_context, true);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        qemu_chr_fe_set_handlers(&s->chr_notify_dev, compare_chr_can_read,
+colo-compare.c:                                 s, s->worker_context, true);
+colo-compare.c:    s->event_bh = aio_bh_new(ctx, colo_compare_handle_event, s);
+colo-compare.c:    return g_strdup(s->pri_indev);
+colo-compare.c:    g_free(s->pri_indev);
+colo-compare.c:    s->pri_indev = g_strdup(value);
+colo-compare.c:    return g_strdup(s->sec_indev);
+colo-compare.c:    g_free(s->sec_indev);
+colo-compare.c:    s->sec_indev = g_strdup(value);
+colo-compare.c:    return g_strdup(s->outdev);
+colo-compare.c:    g_free(s->outdev);
+colo-compare.c:    s->outdev = g_strdup(value);
+colo-compare.c:    return s->vnet_hdr;
+colo-compare.c:    s->vnet_hdr = value;
+colo-compare.c:    return g_strdup(s->notify_dev);
+colo-compare.c:    g_free(s->notify_dev);
+colo-compare.c:    s->notify_dev = g_strdup(value);
+colo-compare.c:    uint64_t value = s->compare_timeout;
+colo-compare.c:    s->compare_timeout = value;
+colo-compare.c:    uint32_t value = s->expired_scan_cycle;
+colo-compare.c:    s->expired_scan_cycle = value;
+colo-compare.c:                         pri_rs->buf,
+colo-compare.c:                         pri_rs->packet_len,
+colo-compare.c:                         pri_rs->vnet_hdr_len,
+colo-compare.c:                           notify_rs->buf,
+colo-compare.c:                           notify_rs->packet_len)) {
+colo-compare.c:            error_report("Notify Xen COLO-frame INIT failed");
+colo-compare.c:                                  notify_rs->buf,
+colo-compare.c:                                  notify_rs->packet_len)) {
+colo-compare.c:        /* colo-compare do checkpoint, flush pri packet and remove sec packet */
+colo-compare.c:        g_queue_foreach(&s->conn_list, colo_flush_packets, s);
+colo-compare.c: * to setup colo-compare.
+colo-compare.c:    if (!s->pri_indev || !s->sec_indev || !s->outdev || !s->iothread) {
+colo-compare.c:    } else if (!strcmp(s->pri_indev, s->outdev) ||
+colo-compare.c:               !strcmp(s->sec_indev, s->outdev) ||
+colo-compare.c:               !strcmp(s->pri_indev, s->sec_indev)) {
+colo-compare.c:    if (!s->compare_timeout) {
+colo-compare.c:        s->compare_timeout = DEFAULT_TIME_OUT_MS;
+colo-compare.c:    if (!s->expired_scan_cycle) {
+colo-compare.c:        s->expired_scan_cycle = REGULAR_PACKET_CHECK_MS;
+colo-compare.c:    if (find_and_check_chardev(&chr, s->pri_indev, errp) ||
+colo-compare.c:        !qemu_chr_fe_init(&s->chr_pri_in, chr, errp)) {
+colo-compare.c:    if (find_and_check_chardev(&chr, s->sec_indev, errp) ||
+colo-compare.c:        !qemu_chr_fe_init(&s->chr_sec_in, chr, errp)) {
+colo-compare.c:    if (find_and_check_chardev(&chr, s->outdev, errp) ||
+colo-compare.c:        !qemu_chr_fe_init(&s->chr_out, chr, errp)) {
+colo-compare.c:    net_socket_rs_init(&s->pri_rs, compare_pri_rs_finalize, s->vnet_hdr);
+colo-compare.c:    net_socket_rs_init(&s->sec_rs, compare_sec_rs_finalize, s->vnet_hdr);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        if (find_and_check_chardev(&chr, s->notify_dev, errp) ||
+colo-compare.c:            !qemu_chr_fe_init(&s->chr_notify_dev, chr, errp)) {
+colo-compare.c:        net_socket_rs_init(&s->notify_rs, compare_notify_rs_finalize,
+colo-compare.c:                           s->vnet_hdr);
+colo-compare.c:    s->out_sendco.s = s;
+colo-compare.c:    s->out_sendco.chr = &s->chr_out;
+colo-compare.c:    s->out_sendco.notify_remote_frame = false;
+colo-compare.c:    s->out_sendco.done = true;
+colo-compare.c:    g_queue_init(&s->out_sendco.send_list);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        s->notify_sendco.s = s;
+colo-compare.c:        s->notify_sendco.chr = &s->chr_notify_dev;
+colo-compare.c:        s->notify_sendco.notify_remote_frame = true;
+colo-compare.c:        s->notify_sendco.done = true;
+colo-compare.c:        g_queue_init(&s->notify_sendco.send_list);
+colo-compare.c:    g_queue_init(&s->conn_list);
+colo-compare.c:    s->connection_track_table = g_hash_table_new_full(connection_key_hash,
+colo-compare.c:    while (!g_queue_is_empty(&conn->primary_list)) {
+colo-compare.c:        pkt = g_queue_pop_tail(&conn->primary_list);
+colo-compare.c:                         pkt->data,
+colo-compare.c:                         pkt->size,
+colo-compare.c:                         pkt->vnet_hdr_len,
+colo-compare.c:    while (!g_queue_is_empty(&conn->secondary_list)) {
+colo-compare.c:        pkt = g_queue_pop_tail(&conn->secondary_list);
+colo-compare.c:    ucc->complete = colo_compare_complete;
+colo-compare.c:                            (Object **)&s->iothread,
+colo-compare.c:    s->vnet_hdr = false;
+colo-compare.c:    qemu_chr_fe_deinit(&s->chr_pri_in, false);
+colo-compare.c:    qemu_chr_fe_deinit(&s->chr_sec_in, false);
+colo-compare.c:    qemu_chr_fe_deinit(&s->chr_out, false);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        qemu_chr_fe_deinit(&s->chr_notify_dev, false);
+colo-compare.c:    qemu_bh_delete(s->event_bh);
+colo-compare.c:    AioContext *ctx = iothread_get_aio_context(s->iothread);
+colo-compare.c:    AIO_WAIT_WHILE(ctx, !s->out_sendco.done);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        AIO_WAIT_WHILE(ctx, !s->notify_sendco.done);
+colo-compare.c:    g_queue_foreach(&s->conn_list, colo_flush_packets, s);
+colo-compare.c:    AIO_WAIT_WHILE(NULL, !s->out_sendco.done);
+colo-compare.c:    g_queue_clear(&s->conn_list);
+colo-compare.c:    g_queue_clear(&s->out_sendco.send_list);
+colo-compare.c:    if (s->notify_dev) {
+colo-compare.c:        g_queue_clear(&s->notify_sendco.send_list);
+colo-compare.c:    if (s->connection_track_table) {
+colo-compare.c:        g_hash_table_destroy(s->connection_track_table);
+colo-compare.c:    object_unref(OBJECT(s->iothread));
+colo-compare.c:    g_free(s->pri_indev);
+colo-compare.c:    g_free(s->sec_indev);
+colo-compare.c:    g_free(s->outdev);
+colo-compare.c:    g_free(s->notify_dev);
+colo-compare.h: * COarse-grain LOck-stepping Virtual Machines for Non-stop Service (COLO)
+colo-compare.h: * later.  See the COPYING file in the top-level directory.
+colo.c: * COarse-grain LOck-stepping Virtual Machines for Non-stop Service (COLO)
+colo.c: * later.  See the COPYING file in the top-level directory.
+colo.c:    a += key->src.s_addr;
+colo.c:    b += key->dst.s_addr;
+colo.c:    c += (key->src_port | key->dst_port << 16);
+colo.c:    a += key->ip_proto;
+colo.c:    uint8_t *data = pkt->data;
+colo.c:    if ((pkt->vnet_hdr_len > sizeof(struct virtio_net_hdr_v1_hash)) ||
+colo.c:        (pkt->size < sizeof(struct eth_header) + sizeof(struct vlan_header) +
+colo.c:        pkt->vnet_hdr_len)) {
+colo.c:                                        pkt->vnet_hdr_len, pkt->size);
+colo.c:    data += pkt->vnet_hdr_len;
+colo.c:        trace_colo_proxy_main("COLO-proxy don't support vlan");
+colo.c:    pkt->network_header = data + l2hdr_len;
+colo.c:    network_length = pkt->ip->ip_hl * 4;
+colo.c:    if (pkt->size < l2hdr_len + network_length + pkt->vnet_hdr_len) {
+colo.c:        trace_colo_proxy_main("pkt->size < network_header + network_length");
+colo.c:    pkt->transport_header = pkt->network_header + network_length;
+colo.c:        key->src = pkt->ip->ip_dst;
+colo.c:        key->dst = pkt->ip->ip_src;
+colo.c:        key->src_port = ntohs(tmp_ports & 0xffff);
+colo.c:        key->dst_port = ntohs(tmp_ports >> 16);
+colo.c:        key->src = pkt->ip->ip_src;
+colo.c:        key->dst = pkt->ip->ip_dst;
+colo.c:        key->src_port = ntohs(tmp_ports >> 16);
+colo.c:        key->dst_port = ntohs(tmp_ports & 0xffff);
+colo.c:    key->ip_proto = pkt->ip->ip_p;
+colo.c:    switch (key->ip_proto) {
+colo.c:        tmp_ports = *(uint32_t *)(pkt->transport_header);
+colo.c:        tmp_ports = *(uint32_t *)(pkt->transport_header + 4);
+colo.c:    conn->ip_proto = key->ip_proto;
+colo.c:    conn->processing = false;
+colo.c:    conn->tcp_state = TCPS_CLOSED;
+colo.c:    g_queue_init(&conn->primary_list);
+colo.c:    g_queue_init(&conn->secondary_list);
+colo.c:    g_queue_foreach(&conn->primary_list, packet_destroy, NULL);
+colo.c:    g_queue_clear(&conn->primary_list);
+colo.c:    g_queue_foreach(&conn->secondary_list, packet_destroy, NULL);
+colo.c:    g_queue_clear(&conn->secondary_list);
+colo.c:    pkt->data = g_memdup(data, size);
+colo.c:    pkt->size = size;
+colo.c:    pkt->creation_ms = qemu_clock_get_ms(QEMU_CLOCK_HOST);
+colo.c:    pkt->vnet_hdr_len = vnet_hdr_len;
+colo.c:    pkt->data = data;
+colo.c:    pkt->size = size;
+colo.c:    pkt->creation_ms = qemu_clock_get_ms(QEMU_CLOCK_HOST);
+colo.c:    pkt->vnet_hdr_len = vnet_hdr_len;
+colo.c:    g_free(pkt->data);
+colo.h: * COarse-grain LOck-stepping Virtual Machines for Non-stop Service (COLO)
+colo.h: * later.  See the COPYING file in the top-level directory.
+colo.h:#include "standard-headers/linux/virtio_net.h"
+colo.h:    /* offset = secondary_seq - primary_seq */
+dgram.c: * Copyright (c) 2003-2008 Fabrice Bellard
+dgram.c:#include "qemu/error-report.h"
+dgram.c:#include "qemu/main-loop.h"
+dgram.c:    qemu_set_fd_handler(s->fd,
+dgram.c:                        s->read_poll ? net_dgram_send : NULL,
+dgram.c:                        s->write_poll ? net_dgram_writable : NULL,
+dgram.c:    s->read_poll = enable;
+dgram.c:    s->write_poll = enable;
+dgram.c:    qemu_flush_queued_packets(&s->nc);
+dgram.c:        if (s->dest_addr) {
+dgram.c:            ret = sendto(s->fd, buf, size, 0, s->dest_addr, s->dest_len);
+dgram.c:            ret = send(s->fd, buf, size, 0);
+dgram.c:    } while (ret == -1 && errno == EINTR);
+dgram.c:    if (ret == -1 && errno == EAGAIN) {
+dgram.c:    if (!s->read_poll) {
+dgram.c:    if (qemu_send_packet_async(&s->nc, rs->buf,
+dgram.c:                               rs->packet_len,
+dgram.c:    size = recv(s->fd, s->rs.buf, sizeof(s->rs.buf), 0);
+dgram.c:    if (qemu_send_packet_async(&s->nc, s->rs.buf, size,
+dgram.c:    if (!IN_MULTICAST(ntohl(mcastaddr->sin_addr.s_addr))) {
+dgram.c:                   inet_ntoa(mcastaddr->sin_addr),
+dgram.c:                   (int)ntohl(mcastaddr->sin_addr.s_addr));
+dgram.c:        return -1;
+dgram.c:        return -1;
+dgram.c:                         inet_ntoa(mcastaddr->sin_addr));
+dgram.c:    imr.imr_multiaddr = mcastaddr->sin_addr;
+dgram.c:    return -1;
+dgram.c:    if (s->fd != -1) {
+dgram.c:        close(s->fd);
+dgram.c:        s->fd = -1;
+dgram.c:    g_free(s->dest_addr);
+dgram.c:    s->dest_addr = NULL;
+dgram.c:    s->dest_len = 0;
+dgram.c:    s->fd = fd;
+dgram.c:    net_socket_rs_init(&s->rs, net_dgram_rs_finalize, false);
+dgram.c:    if (remote->type != SOCKET_ADDRESS_TYPE_INET) {
+dgram.c:        return -1;
+dgram.c:    if (convert_host_port(saddr, remote->u.inet.host, remote->u.inet.port,
+dgram.c:        return -1;
+dgram.c:            return -1;
+dgram.c:        switch (local->type) {
+dgram.c:            if (inet_aton(local->u.inet.host, &localaddr) == 0) {
+dgram.c:                           local->u.inet.host);
+dgram.c:                return -1;
+dgram.c:                return -1;
+dgram.c:            fd = monitor_fd_param(monitor_cur(), local->u.fd.str, errp);
+dgram.c:            if (fd == -1) {
+dgram.c:                return -1;
+dgram.c:                error_setg_errno(errp, -ret, "%s: Can't use file descriptor %d",
+dgram.c:                return -1;
+dgram.c:             * we must "clone" this dgram socket --jjo
+dgram.c:            if (convert_host_port(saddr, local->u.inet.host, local->u.inet.port,
+dgram.c:                return -1;
+dgram.c:            if (saddr->sin_addr.s_addr == 0) {
+dgram.c:                return -1;
+dgram.c:                return -1;
+dgram.c:            return -1;
+dgram.c:        return -1;
+dgram.c:    g_assert(s->dest_addr == NULL);
+dgram.c:    s->dest_addr = (struct sockaddr *)saddr;
+dgram.c:    s->dest_len = sizeof(*saddr);
+dgram.c:        qemu_set_info_str(&s->nc, "mcast=%s:%d",
+dgram.c:                          inet_ntoa(saddr->sin_addr),
+dgram.c:                          ntohs(saddr->sin_port));
+dgram.c:        switch (local->type) {
+dgram.c:            qemu_set_info_str(&s->nc, "mcast=%s:%d",
+dgram.c:                              inet_ntoa(saddr->sin_addr),
+dgram.c:                              ntohs(saddr->sin_port));
+dgram.c:            qemu_set_info_str(&s->nc, "fd=%d (cloned mcast=%s:%d)",
+dgram.c:                              fd, inet_ntoa(saddr->sin_addr),
+dgram.c:                              ntohs(saddr->sin_port));
+dgram.c:    assert(netdev->type == NET_CLIENT_DRIVER_DGRAM);
+dgram.c:    remote = netdev->u.dgram.remote;
+dgram.c:    local = netdev->u.dgram.local;
+dgram.c:    if (remote && remote->type == SOCKET_ADDRESS_TYPE_INET) {
+dgram.c:        if (convert_host_port(&mcastaddr, remote->u.inet.host,
+dgram.c:                              remote->u.inet.port, errp) < 0) {
+dgram.c:            return -1;
+dgram.c:        return -1;
+dgram.c:        if (local->type == SOCKET_ADDRESS_TYPE_FD) {
+dgram.c:            return -1;
+dgram.c:        if (remote->type != local->type) {
+dgram.c:            return -1;
+dgram.c:        if (local->type != SOCKET_ADDRESS_TYPE_FD) {
+dgram.c:            return -1;
+dgram.c:    switch (local->type) {
+dgram.c:        if (convert_host_port(&laddr_in, local->u.inet.host, local->u.inet.port,
+dgram.c:            return -1;
+dgram.c:        if (convert_host_port(&raddr_in, remote->u.inet.host,
+dgram.c:                              remote->u.inet.port, errp) < 0) {
+dgram.c:            return -1;
+dgram.c:            return -1;
+dgram.c:            return -1;
+dgram.c:            return -1;
+dgram.c:        ret = unlink(local->u.q_unix.path);
+dgram.c:                             local->u.q_unix.path);
+dgram.c:            return -1;
+dgram.c:                       local->u.q_unix.path);
+dgram.c:                       local->u.q_unix.path);
+dgram.c:                       remote->u.q_unix.path);
+dgram.c:                       remote->u.q_unix.path);
+dgram.c:            return -1;
+dgram.c:            return -1;
+dgram.c:        fd = monitor_fd_param(monitor_cur(), local->u.fd.str, errp);
+dgram.c:        if (fd == -1) {
+dgram.c:            return -1;
+dgram.c:            error_setg_errno(errp, -ret, "%s: Can't use file descriptor %d",
+dgram.c:            return -1;
+dgram.c:        return -1;
+dgram.c:        return -1;
+dgram.c:        g_assert(s->dest_addr == NULL);
+dgram.c:        s->dest_addr = dest_addr;
+dgram.c:        s->dest_len = dest_len;
+dgram.c:    switch (local->type) {
+dgram.c:        qemu_set_info_str(&s->nc, "udp=%s:%d/%s:%d",
+dgram.c:        qemu_set_info_str(&s->nc, "udp=%s:%s",
+dgram.c:            sa_type = sa->type;
+dgram.c:            qemu_set_info_str(&s->nc, "fd=%d %s", fd,
+dgram.c:            qemu_set_info_str(&s->nc, "fd=%d", fd);
+dump.c: * Copyright (c) 2003-2008 Fabrice Bellard
+dump.c:#include "qemu/error-report.h"
+dump.c:    if (s->fd < 0) {
+dump.c:    caplen = size > s->pcap_caplen ? s->pcap_caplen : size;
+dump.c:    hdr.ts.tv_sec = ts / 1000000 + s->start_ts;
+dump.c:    if (writev(s->fd, dumpiov, cnt + 1) != sizeof(hdr) + caplen) {
+dump.c:        error_report("network dump write error - stopping dump");
+dump.c:        close(s->fd);
+dump.c:        s->fd = -1;
+dump.c:    close(s->fd);
+dump.c:    s->fd = -1;
+dump.c:        return -1;
+dump.c:        return -1;
+dump.c:    s->fd = fd;
+dump.c:    s->pcap_caplen = len;
+dump.c:    s->start_ts = mktime(&tm);
+dump.c:#define TYPE_FILTER_DUMP "filter-dump"
+dump.c:    dump_receive_iov(&nfds->ds, iov, iovcnt);
+dump.c:    dump_cleanup(&nfds->ds);
+dump.c:    if (!nfds->filename) {
+dump.c:    net_dump_state_init(&nfds->ds, nfds->filename, nfds->maxlen, errp);
+dump.c:    uint32_t value = nfds->maxlen;
+dump.c:    nfds->maxlen = value;
+dump.c:    return g_strdup(nfds->filename);
+dump.c:    g_free(nfds->filename);
+dump.c:    nfds->filename = g_strdup(value);
+dump.c:    nfds->maxlen = 65536;
+dump.c:    g_free(nfds->filename);
+dump.c:    nfc->setup = filter_dump_setup;
+dump.c:    nfc->cleanup = filter_dump_cleanup;
+dump.c:    nfc->receive_iov = filter_dump_receive_iov;
+eth.c: * See the COPYING file in the top-level directory.
+eth.c:    switch (be16_to_cpu(ehdr->h_proto)) {
+eth.c:        vhdr->h_proto = ehdr->h_proto;
+eth.c:        ehdr->h_proto = cpu_to_be16(vlan_ethtype);
+eth.c:    vhdr->h_tci = cpu_to_be16(vlan_tag);
+eth.c:            if (IPTOS_ECN(iphdr->ip_tos) == IPTOS_ECN_CE) {
+eth.c:        if (IP6_ECN(ip6hdr->ip6_ecn_acc) == IP6_ECN_CE) {
+eth.c:    size_t proto_offset = l2hdr_len - sizeof(proto);
+eth.c:        l4len = be16_to_cpu(ip4_hdr->ip_len) - IP_HDR_GET_LEN(ip4_hdr);
+eth.c:        size_t opts_len = full_ip6hdr_len - sizeof(struct ip6_header);
+eth.c:        l4len = be16_to_cpu(ip6_hdr->ip6_ctlun.ip6_un1.ip6_un1_plen) - opts_len;
+eth.c:        struct ip_header *iphdr = &ip4hdr_info->ip4_hdr;
+eth.c:            if (iphdr->ip_p == IP_PROTO_TCP) {
+eth.c:            } else if (iphdr->ip_p == IP_PROTO_UDP) {
+eth.c:        ip4hdr_info->fragment = IP4_IS_FRAGMENT(iphdr);
+eth.c:        fragment = ip4hdr_info->fragment;
+eth.c:            if (ip6hdr_info->l4proto == IP_PROTO_TCP) {
+eth.c:            } else if (ip6hdr_info->l4proto == IP_PROTO_UDP) {
+eth.c:        *l4hdr_off = l2hdr_len + ip6hdr_info->full_hdr_len;
+eth.c:        fragment = ip6hdr_info->fragment;
+eth.c:                                     *l4hdr_off, sizeof(l4hdr_info->hdr.tcp),
+eth.c:                                     &l4hdr_info->hdr.tcp);
+eth.c:                    TCP_HEADER_DATA_OFFSET(&l4hdr_info->hdr.tcp);
+eth.c:                l4hdr_info->has_tcp_data =
+eth.c:                                      &ip4hdr_info->ip4_hdr,
+eth.c:                                      &ip6hdr_info->ip6_hdr,
+eth.c:                                      *l4hdr_off - *l3hdr_off,
+eth.c:                                      &l4hdr_info->hdr.tcp);
+eth.c:                                     *l4hdr_off, sizeof(l4hdr_info->hdr.udp),
+eth.c:                                     &l4hdr_info->hdr.udp);
+eth.c:            *l5hdr_off = *l4hdr_off + sizeof(l4hdr_info->hdr.udp);
+eth.c:    switch (be16_to_cpu(new_ehdr->h_proto)) {
+eth.c:        new_ehdr->h_proto = vlan_hdr.h_proto;
+eth.c:        if (be16_to_cpu(new_ehdr->h_proto) == ETH_P_VLAN) {
+eth.c:    if (be16_to_cpu(new_ehdr->h_proto) == vet) {
+eth.c:        new_ehdr->h_proto = vlan_hdr.h_proto;
+eth.c:        orig_flags = be16_to_cpu(iphdr->ip_off) & ~(IP_OFFMASK|IP_MF);
+eth.c:        iphdr->ip_off = cpu_to_be16(new_ip_off);
+eth.c:        iphdr->ip_len = cpu_to_be16(l3payload_len + l3hdr_len);
+eth.c:    iphdr->ip_sum = 0;
+eth.c:    iphdr->ip_sum = cpu_to_be16(net_raw_checksum(l3hdr, l3hdr_len));
+eth.c:    ipph.ip_src = iphdr->ip_src;
+eth.c:    ipph.ip_dst = iphdr->ip_dst;
+eth.c:    ipph.ip_proto = iphdr->ip_p;
+eth.c:    ipph.ip6_src = iphdr->ip6_src;
+eth.c:    ipph.ip6_dst = iphdr->ip6_dst;
+eth.c:    size_t bytes_left = (ext_hdr->ip6r_len + 1) * 8 - sizeof(*ext_hdr);
+eth.c:        bytes_left -= optlen;
+eth.c:    info->rss_ex_dst_valid = false;
+eth.c:    info->rss_ex_src_valid = false;
+eth.c:    info->fragment = false;
+eth.c:                            &info->ip6_hdr, sizeof(info->ip6_hdr));
+eth.c:    if (bytes_read < sizeof(info->ip6_hdr)) {
+eth.c:    info->full_hdr_len = sizeof(struct ip6_header);
+eth.c:    curr_ext_hdr_type = info->ip6_hdr.ip6_nxt;
+eth.c:        info->l4proto = info->ip6_hdr.ip6_nxt;
+eth.c:        info->has_ext_hdrs = false;
+eth.c:    info->has_ext_hdrs = true;
+eth.c:        if (input_size < ip6hdr_off + info->full_hdr_len) {
+eth.c:        bytes_read = iov_to_buf(pkt, pkt_frags, ip6hdr_off + info->full_hdr_len,
+eth.c:                info->rss_ex_dst_valid =
+eth.c:                                             ip6hdr_off + info->full_hdr_len,
+eth.c:                                             &ext_hdr, &info->rss_ex_dst);
+eth.c:            info->rss_ex_src_valid =
+eth.c:                                         ip6hdr_off + info->full_hdr_len,
+eth.c:                                         &ext_hdr, &info->rss_ex_src);
+eth.c:            info->fragment = true;
+eth.c:        info->full_hdr_len += (ext_hdr.ip6r_len + 1) * IP6_EXT_GRANULARITY;
+eth.c:    info->l4proto = ext_hdr.ip6r_nxt;
+eth.c:    memset(&padded_pkt[pkt_size], 0, ETH_ZLEN - pkt_size);
+filter-buffer.c: * later.  See the COPYING file in the top-level directory.
+filter-buffer.c:#include "qapi/qapi-builtin-visit.h"
+filter-buffer.c:#define TYPE_FILTER_BUFFER "filter-buffer"
+filter-buffer.c:    if (!qemu_net_queue_flush(s->incoming_queue)) {
+filter-buffer.c:        qemu_net_queue_purge(s->incoming_queue, nf->netdev);
+filter-buffer.c:    /* Timer rearmed to fire again in s->interval microseconds. */
+filter-buffer.c:    timer_mod(&s->release_timer,
+filter-buffer.c:              qemu_clock_get_us(QEMU_CLOCK_VIRTUAL) + s->interval);
+filter-buffer.c:    qemu_net_queue_append_iov(s->incoming_queue, sender, flags,
+filter-buffer.c:    if (s->interval) {
+filter-buffer.c:        timer_del(&s->release_timer);
+filter-buffer.c:    if (s->incoming_queue) {
+filter-buffer.c:        g_free(s->incoming_queue);
+filter-buffer.c:    if (s->interval) {
+filter-buffer.c:        timer_init_us(&s->release_timer, QEMU_CLOCK_VIRTUAL,
+filter-buffer.c:        /* Timer armed to fire in s->interval microseconds. */
+filter-buffer.c:        timer_mod(&s->release_timer,
+filter-buffer.c:                  qemu_clock_get_us(QEMU_CLOCK_VIRTUAL) + s->interval);
+filter-buffer.c:    if (!s->interval) {
+filter-buffer.c:                   "a non-zero interval");
+filter-buffer.c:    s->incoming_queue = qemu_new_net_queue(qemu_netfilter_pass_to_next, nf);
+filter-buffer.c:    if (!nf->on) {
+filter-buffer.c:        if (s->interval) {
+filter-buffer.c:            timer_del(&s->release_timer);
+filter-buffer.c:    uint32_t value = s->interval;
+filter-buffer.c:    s->interval = value;
+filter-buffer.c:    nfc->setup = filter_buffer_setup;
+filter-buffer.c:    nfc->cleanup = filter_buffer_cleanup;
+filter-buffer.c:    nfc->receive_iov = filter_buffer_receive_iov;
+filter-buffer.c:    nfc->status_changed = filter_buffer_status_changed;
+filter-mirror.c: * later.  See the COPYING file in the top-level directory.
+filter-mirror.c:#include "qemu/main-loop.h"
+filter-mirror.c:#include "qemu/error-report.h"
+filter-mirror.c:#include "chardev/char-fe.h"
+filter-mirror.c:#include "block/aio-wait.h"
+filter-mirror.c:#define TYPE_FILTER_MIRROR "filter-mirror"
+filter-mirror.c:#define TYPE_FILTER_REDIRECTOR "filter-redirector"
+filter-mirror.c:    ret = qemu_chr_fe_write_all(&s->chr_out, (uint8_t *)&len, sizeof(len));
+filter-mirror.c:    if (s->vnet_hdr) {
+filter-mirror.c:         * module(like colo-compare) know how to parse net
+filter-mirror.c:        vnet_hdr_len = nf->netdev->vnet_hdr_len;
+filter-mirror.c:        ret = qemu_chr_fe_write_all(&s->chr_out, (uint8_t *)&len, sizeof(len));
+filter-mirror.c:    ret = qemu_chr_fe_write_all(&s->chr_out, (uint8_t *)buf, size);
+filter-mirror.c:    return ret < 0 ? ret : -EIO;
+filter-mirror.c:    data->ret = _filter_send(data->s, data->buf, data->size);
+filter-mirror.c:    data->done = true;
+filter-mirror.c:    g_free(data->buf);
+filter-mirror.c:    if (nf->direction == NET_FILTER_DIRECTION_ALL ||
+filter-mirror.c:        nf->direction == NET_FILTER_DIRECTION_TX) {
+filter-mirror.c:        qemu_netfilter_pass_to_next(nf->netdev, 0, &iov, 1, nf);
+filter-mirror.c:    if (nf->direction == NET_FILTER_DIRECTION_ALL ||
+filter-mirror.c:        nf->direction == NET_FILTER_DIRECTION_RX) {
+filter-mirror.c:        qemu_netfilter_pass_to_next(nf->netdev->peer, 0, &iov, 1, nf);
+filter-mirror.c:    ret = net_fill_rstate(&s->rs, buf, size);
+filter-mirror.c:    if (ret == -1) {
+filter-mirror.c:        qemu_chr_fe_set_handlers(&s->chr_in, NULL, NULL, NULL,
+filter-mirror.c:        qemu_chr_fe_set_handlers(&s->chr_in, NULL, NULL, NULL,
+filter-mirror.c:        error_report("filter mirror send failed(%s)", strerror(-ret));
+filter-mirror.c:    if (qemu_chr_fe_backend_connected(&s->chr_out)) {
+filter-mirror.c:            error_report("filter redirector send failed(%s)", strerror(-ret));
+filter-mirror.c:    qemu_chr_fe_deinit(&s->chr_out, false);
+filter-mirror.c:    qemu_chr_fe_deinit(&s->chr_in, false);
+filter-mirror.c:    qemu_chr_fe_deinit(&s->chr_out, false);
+filter-mirror.c:    if (s->outdev == NULL) {
+filter-mirror.c:        error_set(errp, ERROR_CLASS_DEVICE_NOT_FOUND, "filter-mirror parameter"\
+filter-mirror.c:    chr = qemu_chr_find(s->outdev);
+filter-mirror.c:                  "Device '%s' not found", s->outdev);
+filter-mirror.c:    qemu_chr_fe_init(&s->chr_out, chr, errp);
+filter-mirror.c:    redirector_to_filter(nf, rs->buf, rs->packet_len);
+filter-mirror.c:    if (!s->indev && !s->outdev) {
+filter-mirror.c:    } else if (s->indev && s->outdev) {
+filter-mirror.c:        if (!strcmp(s->indev, s->outdev)) {
+filter-mirror.c:    net_socket_rs_init(&s->rs, redirector_rs_finalize, s->vnet_hdr);
+filter-mirror.c:    if (s->indev) {
+filter-mirror.c:        chr = qemu_chr_find(s->indev);
+filter-mirror.c:                      "IN Device '%s' not found", s->indev);
+filter-mirror.c:        if (!qemu_chr_fe_init(&s->chr_in, chr, errp)) {
+filter-mirror.c:        qemu_chr_fe_set_handlers(&s->chr_in, redirector_chr_can_read,
+filter-mirror.c:    if (s->outdev) {
+filter-mirror.c:        chr = qemu_chr_find(s->outdev);
+filter-mirror.c:                      "OUT Device '%s' not found", s->outdev);
+filter-mirror.c:        if (!qemu_chr_fe_init(&s->chr_out, chr, errp)) {
+filter-mirror.c:    return g_strdup(s->indev);
+filter-mirror.c:    g_free(s->indev);
+filter-mirror.c:    s->indev = g_strdup(value);
+filter-mirror.c:    return g_strdup(s->outdev);
+filter-mirror.c:    g_free(s->outdev);
+filter-mirror.c:    s->outdev = g_strdup(value);
+filter-mirror.c:    if (!s->outdev) {
+filter-mirror.c:    return s->vnet_hdr;
+filter-mirror.c:    s->vnet_hdr = value;
+filter-mirror.c:    return g_strdup(s->outdev);
+filter-mirror.c:    g_free(s->outdev);
+filter-mirror.c:    s->outdev = g_strdup(value);
+filter-mirror.c:    return s->vnet_hdr;
+filter-mirror.c:    s->vnet_hdr = value;
+filter-mirror.c:    nfc->setup = filter_mirror_setup;
+filter-mirror.c:    nfc->cleanup = filter_mirror_cleanup;
+filter-mirror.c:    nfc->receive_iov = filter_mirror_receive_iov;
+filter-mirror.c:    nfc->setup = filter_redirector_setup;
+filter-mirror.c:    nfc->cleanup = filter_redirector_cleanup;
+filter-mirror.c:    nfc->receive_iov = filter_redirector_receive_iov;
+filter-mirror.c:    s->vnet_hdr = false;
+filter-mirror.c:    s->vnet_hdr = false;
+filter-mirror.c:    g_free(s->outdev);
+filter-mirror.c:    g_free(s->indev);
+filter-mirror.c:    g_free(s->outdev);
+filter-replay.c: * filter-replay.c
+filter-replay.c: * Copyright (c) 2010-2016 Institute for System Programming
+filter-replay.c: * See the COPYING file in the top-level directory.
+filter-replay.c:#include "qemu/error-report.h"
+filter-replay.c:#define TYPE_FILTER_REPLAY "filter-replay"
+filter-replay.c:        if (nf->netdev == sndr) {
+filter-replay.c:            replay_net_packet_event(nfrs->rns, flags, iov, iovcnt);
+filter-replay.c:    nfrs->rns = replay_register_net(&nfrs->nfs);
+filter-replay.c:    replay_unregister_net(nfrs->rns);
+filter-replay.c:    nfc->receive_iov = filter_replay_receive_iov;
+filter-rewriter.c: * later.  See the COPYING file in the top-level directory.
+filter-rewriter.c:#include "qemu/error-report.h"
+filter-rewriter.c:#include "qemu/main-loop.h"
+filter-rewriter.c:#define TYPE_FILTER_REWRITER "filter-rewriter"
+filter-rewriter.c:    s->failover_mode = FAILOVER_MODE_ON;
+filter-rewriter.c:    if (!qemu_net_queue_flush(s->incoming_queue)) {
+filter-rewriter.c:        qemu_net_queue_purge(s->incoming_queue, nf->netdev);
+filter-rewriter.c:        pkt->ip->ip_p == IPPROTO_TCP) {
+filter-rewriter.c:    tcp_pkt = (struct tcp_hdr *)pkt->transport_header;
+filter-rewriter.c:                    inet_ntoa(pkt->ip->ip_src), inet_ntoa(pkt->ip->ip_dst),
+filter-rewriter.c:                    ntohl(tcp_pkt->th_seq), ntohl(tcp_pkt->th_ack),
+filter-rewriter.c:                    tcp_pkt->th_flags);
+filter-rewriter.c:        trace_colo_filter_rewriter_conn_offset(conn->offset);
+filter-rewriter.c:    if (((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == (TH_ACK | TH_SYN)) &&
+filter-rewriter.c:        conn->tcp_state == TCPS_SYN_SENT) {
+filter-rewriter.c:        conn->tcp_state = TCPS_ESTABLISHED;
+filter-rewriter.c:    if (((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == TH_SYN)) {
+filter-rewriter.c:        conn->tcp_state = TCPS_SYN_RECEIVED;
+filter-rewriter.c:    if (((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == TH_ACK)) {
+filter-rewriter.c:        if (conn->tcp_state == TCPS_SYN_RECEIVED) {
+filter-rewriter.c:             * offset = secondary_seq - primary seq
+filter-rewriter.c:             * so we use th_ack - 1 get primary_seq
+filter-rewriter.c:            conn->offset -= (ntohl(tcp_pkt->th_ack) - 1);
+filter-rewriter.c:            conn->tcp_state = TCPS_ESTABLISHED;
+filter-rewriter.c:        if (conn->offset) {
+filter-rewriter.c:            tcp_pkt->th_ack = htonl(ntohl(tcp_pkt->th_ack) + conn->offset);
+filter-rewriter.c:            net_checksum_calculate((uint8_t *)pkt->data + pkt->vnet_hdr_len,
+filter-rewriter.c:                                   pkt->size - pkt->vnet_hdr_len, CSUM_TCP);
+filter-rewriter.c:        if ((conn->tcp_state == TCPS_LAST_ACK) &&
+filter-rewriter.c:            (ntohl(tcp_pkt->th_ack) == (conn->fin_ack_seq + 1))) {
+filter-rewriter.c:            conn->tcp_state = TCPS_CLOSED;
+filter-rewriter.c:            g_hash_table_remove(rf->connection_track_table, key);
+filter-rewriter.c:    if ((tcp_pkt->th_flags & TH_FIN) == TH_FIN) {
+filter-rewriter.c:        if (conn->tcp_state == TCPS_ESTABLISHED) {
+filter-rewriter.c:            conn->tcp_state = TCPS_CLOSE_WAIT;
+filter-rewriter.c:        if (conn->tcp_state == TCPS_FIN_WAIT_1) {
+filter-rewriter.c:            conn->tcp_state = TCPS_CLOSED;
+filter-rewriter.c:            g_hash_table_remove(rf->connection_track_table, key);
+filter-rewriter.c:    tcp_pkt = (struct tcp_hdr *)pkt->transport_header;
+filter-rewriter.c:                    inet_ntoa(pkt->ip->ip_src), inet_ntoa(pkt->ip->ip_dst),
+filter-rewriter.c:                    ntohl(tcp_pkt->th_seq), ntohl(tcp_pkt->th_ack),
+filter-rewriter.c:                    tcp_pkt->th_flags);
+filter-rewriter.c:        trace_colo_filter_rewriter_conn_offset(conn->offset);
+filter-rewriter.c:    if (conn->tcp_state == TCPS_SYN_RECEIVED &&
+filter-rewriter.c:        ((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == (TH_ACK | TH_SYN))) {
+filter-rewriter.c:         * = secondary_seq - primary_seq
+filter-rewriter.c:        conn->offset = ntohl(tcp_pkt->th_seq);
+filter-rewriter.c:    if (conn->tcp_state == TCPS_CLOSED &&
+filter-rewriter.c:        ((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == TH_SYN)) {
+filter-rewriter.c:        conn->tcp_state = TCPS_SYN_SENT;
+filter-rewriter.c:    if ((tcp_pkt->th_flags & (TH_ACK | TH_SYN)) == TH_ACK) {
+filter-rewriter.c:        /* Only need to adjust seq while offset is Non-zero */
+filter-rewriter.c:        if (conn->offset) {
+filter-rewriter.c:            tcp_pkt->th_seq = htonl(ntohl(tcp_pkt->th_seq) - conn->offset);
+filter-rewriter.c:            net_checksum_calculate((uint8_t *)pkt->data + pkt->vnet_hdr_len,
+filter-rewriter.c:                                   pkt->size - pkt->vnet_hdr_len, CSUM_TCP);
+filter-rewriter.c:    if (conn->tcp_state == TCPS_CLOSE_WAIT &&
+filter-rewriter.c:        (tcp_pkt->th_flags & (TH_ACK | TH_FIN)) == (TH_ACK | TH_FIN)) {
+filter-rewriter.c:        conn->fin_ack_seq = ntohl(tcp_pkt->th_seq);
+filter-rewriter.c:        conn->tcp_state = TCPS_LAST_ACK;
+filter-rewriter.c:    if (conn->tcp_state == TCPS_ESTABLISHED &&
+filter-rewriter.c:        (tcp_pkt->th_flags & (TH_ACK | TH_FIN)) == TH_FIN) {
+filter-rewriter.c:        conn->tcp_state = TCPS_FIN_WAIT_1;
+filter-rewriter.c:    if (s->vnet_hdr) {
+filter-rewriter.c:        vnet_hdr_len = nf->netdev->vnet_hdr_len;
+filter-rewriter.c:        fill_connection_key(pkt, &key, sender == nf->netdev);
+filter-rewriter.c:        if (s->failover_mode &&
+filter-rewriter.c:            !connection_has_tracked(s->connection_track_table, &key)) {
+filter-rewriter.c:        conn = connection_get(s->connection_track_table,
+filter-rewriter.c:        if (sender == nf->netdev) {
+filter-rewriter.c:                qemu_net_queue_send(s->incoming_queue, sender, 0,
+filter-rewriter.c:                (const uint8_t *)pkt->data, pkt->size, NULL);
+filter-rewriter.c:                qemu_net_queue_send(s->incoming_queue, sender, 0,
+filter-rewriter.c:                (const uint8_t *)pkt->data, pkt->size, NULL);
+filter-rewriter.c:    conn->offset = 0;
+filter-rewriter.c:    return conn->offset ? true : false;
+filter-rewriter.c:        g_hash_table_foreach(rs->connection_track_table,
+filter-rewriter.c:        if (!g_hash_table_find(rs->connection_track_table,
+filter-rewriter.c:    if (s->incoming_queue) {
+filter-rewriter.c:        g_free(s->incoming_queue);
+filter-rewriter.c:    g_hash_table_destroy(s->connection_track_table);
+filter-rewriter.c:    s->connection_track_table = g_hash_table_new_full(connection_key_hash,
+filter-rewriter.c:    s->incoming_queue = qemu_new_net_queue(qemu_netfilter_pass_to_next, nf);
+filter-rewriter.c:    return s->vnet_hdr;
+filter-rewriter.c:    s->vnet_hdr = value;
+filter-rewriter.c:    s->vnet_hdr = false;
+filter-rewriter.c:    s->failover_mode = FAILOVER_MODE_OFF;
+filter-rewriter.c:    nfc->setup = colo_rewriter_setup;
+filter-rewriter.c:    nfc->cleanup = colo_rewriter_cleanup;
+filter-rewriter.c:    nfc->receive_iov = colo_rewriter_receive_iov;
+filter-rewriter.c:    nfc->handle_event = colo_rewriter_handle_event;
+filter.c: * later.  See the COPYING file in the top-level directory.
+filter.c:#include "qemu/error-report.h"
+filter.c:    return !nf->on;
+filter.c:    if (nf->direction == direction ||
+filter.c:        nf->direction == NET_FILTER_DIRECTION_ALL) {
+filter.c:        return NETFILTER_GET_CLASS(OBJECT(nf))->receive_iov(
+filter.c:    if (!sender || !sender->peer) {
+filter.c:    if (nf->direction == NET_FILTER_DIRECTION_ALL) {
+filter.c:        if (sender == nf->netdev) {
+filter.c:        direction = nf->direction;
+filter.c:    if (sender && sender->peer) {
+filter.c:        qemu_net_queue_send_iov(sender->peer->incoming_queue,
+filter.c:    return g_strdup(nf->netdev_id);
+filter.c:    nf->netdev_id = g_strdup(str);
+filter.c:    return nf->direction;
+filter.c:    nf->direction = direction;
+filter.c:    return nf->on ? g_strdup("on") : g_strdup("off");
+filter.c:    if (nf->on == !strcmp(str, "on")) {
+filter.c:    nf->on = !nf->on;
+filter.c:    if (nf->netdev && nfc->status_changed) {
+filter.c:        nfc->status_changed(nf, errp);
+filter.c:    return g_strdup(nf->position);
+filter.c:    nf->position = g_strdup(str);
+filter.c:    return nf->insert_before_flag ? g_strdup("before") : g_strdup("behind");
+filter.c:    nf->insert_before_flag = !strcmp(str, "before");
+filter.c:    nf->on = true;
+filter.c:    nf->insert_before_flag = false;
+filter.c:    nf->position = g_strdup("tail");
+filter.c:    if (!nf->netdev_id) {
+filter.c:    queues = qemu_find_net_clients_except(nf->netdev_id, ncs,
+filter.c:    if (strcmp(nf->position, "head") && strcmp(nf->position, "tail")) {
+filter.c:        if (!g_str_has_prefix(nf->position, "id=")) {
+filter.c:        position_id = g_strndup(nf->position + 3, strlen(nf->position) - 3);
+filter.c:        if (position->netdev != ncs[0]) {
+filter.c:    nf->netdev = ncs[0];
+filter.c:    if (nfc->setup) {
+filter.c:        nfc->setup(nf, &local_err);
+filter.c:        if (nf->insert_before_flag) {
+filter.c:            QTAILQ_INSERT_AFTER(&nf->netdev->filters, position, nf, next);
+filter.c:    } else if (!strcmp(nf->position, "head")) {
+filter.c:        QTAILQ_INSERT_HEAD(&nf->netdev->filters, nf, next);
+filter.c:    } else if (!strcmp(nf->position, "tail")) {
+filter.c:        QTAILQ_INSERT_TAIL(&nf->netdev->filters, nf, next);
+filter.c:    if (nfc->cleanup) {
+filter.c:        nfc->cleanup(nf);
+filter.c:    if (nf->netdev && !QTAILQ_EMPTY(&nf->netdev->filters) &&
+filter.c:        QTAILQ_REMOVE(&nf->netdev->filters, nf, next);
+filter.c:    g_free(nf->netdev_id);
+filter.c:    g_free(nf->position);
+filter.c:    ucc->complete = netfilter_complete;
+filter.c:    nfc->handle_event = default_handle_event;
+hub.c: * See the COPYING.LIB file in the top-level directory.
+hub.c:#include "qemu/error-report.h"
+hub.c:    QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:        qemu_send_packet(&port->nc, buf, len);
+hub.c:    QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:        qemu_sendv_packet(&port->nc, iov, iovcnt);
+hub.c:    hub->id = id;
+hub.c:    hub->num_ports = 0;
+hub.c:    QLIST_INIT(&hub->ports);
+hub.c:    NetHub *hub = src_port->hub;
+hub.c:    QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:        if (qemu_can_send_packet(&port->nc)) {
+hub.c:    return net_hub_receive(port->hub, port, buf, len);
+hub.c:    return net_hub_receive_iov(port->hub, port, iov, iovcnt);
+hub.c:    int id = hub->num_ports++;
+hub.c:                 "hub%dport%d", hub->id, id);
+hub.c:    port->id = id;
+hub.c:    port->hub = hub;
+hub.c:    QLIST_INSERT_HEAD(&hub->ports, port, next);
+hub.c:        if (hub->id == hub_id) {
+hub.c:    return &port->nc;
+hub.c:        if (hub->id == hub_id) {
+hub.c:            QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:                nc = port->nc.peer;
+hub.c:                    return &(port->nc);
+hub.c:        monitor_printf(mon, "hub %d\n", hub->id);
+hub.c:        QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:            monitor_printf(mon, " \\ %s", port->nc.name);
+hub.c:            if (port->nc.peer) {
+hub.c:                print_net_client(mon, port->nc.peer);
+hub.c:    if (nc->info->type == NET_CLIENT_DRIVER_HUBPORT) {
+hub.c:    } else if (nc->peer != NULL && nc->peer->info->type ==
+hub.c:        port = DO_UPCAST(NetHubPort, nc, nc->peer);
+hub.c:        return -ENOENT;
+hub.c:        *id = port->hub->id;
+hub.c:    assert(netdev->type == NET_CLIENT_DRIVER_HUBPORT);
+hub.c:    hubport = &netdev->u.hubport;
+hub.c:    if (hubport->netdev) {
+hub.c:        hubpeer = qemu_find_netdev(hubport->netdev);
+hub.c:            error_setg(errp, "netdev '%s' not found", hubport->netdev);
+hub.c:            return -1;
+hub.c:    net_hub_add_port(hubport->hubid, name, hubpeer);
+hub.c:        QLIST_FOREACH(port, &hub->ports, next) {
+hub.c:            peer = port->nc.peer;
+hub.c:                warn_report("hub port %s has no peer", port->nc.name);
+hub.c:            switch (peer->info->type) {
+hub.c:            warn_report("hub %d with no nics", hub->id);
+hub.c:            warn_report("hub %d is not connected to host network", hub->id);
+hub.c:    QLIST_FOREACH(port, &source_port->hub->ports, next) {
+hub.c:            ret += qemu_net_queue_flush(port->nc.incoming_queue);
+hub.h: * See the COPYING.LIB file in the top-level directory.
+l2tpv3.c: * Copyright (c) 2003-2008 Fabrice Bellard
+l2tpv3.c: * Copyright (c) 2012-2014 Cisco Systems
+l2tpv3.c:#include "qemu/error-report.h"
+l2tpv3.c:#include "qemu/main-loop.h"
+l2tpv3.c:/* IANA-assigned IP protocol ID for L2TPv3 */
+l2tpv3.c:     * these are used for xmit - that happens packet a time
+l2tpv3.c:     * these are used for receive - try to "eat" up to 32 packets at a time
+l2tpv3.c:    qemu_set_fd_handler(s->fd,
+l2tpv3.c:                        s->read_poll ? net_l2tpv3_send : NULL,
+l2tpv3.c:                        s->write_poll ? l2tpv3_writable : NULL,
+l2tpv3.c:    if (s->read_poll != enable) {
+l2tpv3.c:        s->read_poll = enable;
+l2tpv3.c:    if (s->write_poll != enable) {
+l2tpv3.c:        s->write_poll = enable;
+l2tpv3.c:    qemu_flush_queued_packets(&s->nc);
+l2tpv3.c:    if (s->udp) {
+l2tpv3.c:        stl_be_p((uint32_t *) s->header_buf, L2TPV3_DATA_PACKET);
+l2tpv3.c:            (uint32_t *) (s->header_buf + s->session_offset),
+l2tpv3.c:            s->tx_session
+l2tpv3.c:    if (s->cookie) {
+l2tpv3.c:        if (s->cookie_is_64) {
+l2tpv3.c:                (uint64_t *)(s->header_buf + s->cookie_offset),
+l2tpv3.c:                s->tx_cookie
+l2tpv3.c:                (uint32_t *) (s->header_buf + s->cookie_offset),
+l2tpv3.c:                s->tx_cookie
+l2tpv3.c:    if (s->has_counter) {
+l2tpv3.c:        counter = (uint32_t *)(s->header_buf + s->counter_offset);
+l2tpv3.c:        if (s->pin_counter) {
+l2tpv3.c:            stl_be_p(counter, ++s->counter);
+l2tpv3.c:    if (iovcnt > MAX_L2TPV3_IOVCNT - 1) {
+l2tpv3.c:        return -1;
+l2tpv3.c:    memcpy(s->vec + 1, iov, iovcnt * sizeof(struct iovec));
+l2tpv3.c:    s->vec->iov_base = s->header_buf;
+l2tpv3.c:    s->vec->iov_len = s->offset;
+l2tpv3.c:    message.msg_name = s->dgram_dst;
+l2tpv3.c:    message.msg_namelen = s->dst_size;
+l2tpv3.c:    message.msg_iov = s->vec;
+l2tpv3.c:    ret = RETRY_ON_EINTR(sendmsg(s->fd, &message, 0));
+l2tpv3.c:        ret -= s->offset;
+l2tpv3.c:        /* belt and braces - should not occur on DGRAM
+l2tpv3.c:        ret = -errno;
+l2tpv3.c:        if (ret == -EAGAIN || ret == -ENOBUFS) {
+l2tpv3.c:    vec = s->vec;
+l2tpv3.c:    vec->iov_base = s->header_buf;
+l2tpv3.c:    vec->iov_len = s->offset;
+l2tpv3.c:    vec->iov_base = (void *) buf;
+l2tpv3.c:    vec->iov_len = size;
+l2tpv3.c:    message.msg_name = s->dgram_dst;
+l2tpv3.c:    message.msg_namelen = s->dst_size;
+l2tpv3.c:    message.msg_iov = s->vec;
+l2tpv3.c:    ret = RETRY_ON_EINTR(sendmsg(s->fd, &message, 0));
+l2tpv3.c:        ret -= s->offset;
+l2tpv3.c:        /* belt and braces - should not occur on DGRAM
+l2tpv3.c:        ret = -errno;
+l2tpv3.c:        if (ret == -EAGAIN || ret == -ENOBUFS) {
+l2tpv3.c:    if ((!s->udp) && (!s->ipv6)) {
+l2tpv3.c:    if (s->cookie) {
+l2tpv3.c:        if (s->cookie_is_64) {
+l2tpv3.c:            cookie = ldq_be_p(buf + s->cookie_offset);
+l2tpv3.c:            cookie = ldl_be_p(buf + s->cookie_offset) & 0xffffffffULL;
+l2tpv3.c:        if (cookie != s->rx_cookie) {
+l2tpv3.c:            if (!s->header_mismatch) {
+l2tpv3.c:            return -1;
+l2tpv3.c:    session = (uint32_t *) (buf + s->session_offset);
+l2tpv3.c:    if (ldl_be_p(session) != s->rx_session) {
+l2tpv3.c:        if (!s->header_mismatch) {
+l2tpv3.c:        return -1;
+l2tpv3.c:    if (s->queue_depth > 0) {
+l2tpv3.c:            msgvec = s->msgvec + s->queue_tail;
+l2tpv3.c:            if (msgvec->msg_len > 0) {
+l2tpv3.c:                data_size = msgvec->msg_len - s->header_size;
+l2tpv3.c:                vec = msgvec->msg_hdr.msg_iov;
+l2tpv3.c:                    (l2tpv3_verify_header(s, vec->iov_base) == 0)) {
+l2tpv3.c:                            &s->nc,
+l2tpv3.c:                            vec->iov_base,
+l2tpv3.c:                    if (!s->header_mismatch) {
+l2tpv3.c:                        s->header_mismatch = true;
+l2tpv3.c:            s->queue_tail = (s->queue_tail + 1) % MAX_L2TPV3_MSGCNT;
+l2tpv3.c:            s->queue_depth--;
+l2tpv3.c:                (s->queue_depth > 0) &&
+l2tpv3.c:                 qemu_can_send_packet(&s->nc) &&
+l2tpv3.c:    if (s->queue_depth) {
+l2tpv3.c:         * count of how much we can read varies - adjust accordingly
+l2tpv3.c:        target_count = MAX_L2TPV3_MSGCNT - s->queue_depth;
+l2tpv3.c:        if (s->queue_head + target_count > MAX_L2TPV3_MSGCNT) {
+l2tpv3.c:            target_count = MAX_L2TPV3_MSGCNT - s->queue_head;
+l2tpv3.c:        /* we do not have any pending packets - we can use
+l2tpv3.c:        s->queue_head = 0;
+l2tpv3.c:        s->queue_tail = 0;
+l2tpv3.c:    msgvec = s->msgvec + s->queue_head;
+l2tpv3.c:                recvmmsg(s->fd, msgvec, target_count, MSG_DONTWAIT, NULL)
+l2tpv3.c:            /* Recv error - we still need to flush packets here,
+l2tpv3.c:        s->queue_head = (s->queue_head + count) % MAX_L2TPV3_MSGCNT;
+l2tpv3.c:        s->queue_depth += count;
+l2tpv3.c:            if (cleanup->msg_hdr.msg_iov) {
+l2tpv3.c:                iov = cleanup->msg_hdr.msg_iov;
+l2tpv3.c:                    g_free(iov->iov_base);
+l2tpv3.c:                g_free(cleanup->msg_hdr.msg_iov);
+l2tpv3.c:        msgvec->msg_hdr.msg_name = NULL;
+l2tpv3.c:        msgvec->msg_hdr.msg_namelen = 0;
+l2tpv3.c:        msgvec->msg_hdr.msg_iov = iov;
+l2tpv3.c:        iov->iov_base = g_malloc(s->header_size);
+l2tpv3.c:        iov->iov_len = s->header_size;
+l2tpv3.c:        iov->iov_base = qemu_memalign(BUFFER_ALIGN, BUFFER_SIZE);
+l2tpv3.c:        iov->iov_len = BUFFER_SIZE;
+l2tpv3.c:        msgvec->msg_hdr.msg_iovlen = 2;
+l2tpv3.c:        msgvec->msg_hdr.msg_control = NULL;
+l2tpv3.c:        msgvec->msg_hdr.msg_controllen = 0;
+l2tpv3.c:        msgvec->msg_hdr.msg_flags = 0;
+l2tpv3.c:    if (s->fd >= 0) {
+l2tpv3.c:        close(s->fd);
+l2tpv3.c:    destroy_vector(s->msgvec, MAX_L2TPV3_MSGCNT, IOVSIZE);
+l2tpv3.c:    g_free(s->vec);
+l2tpv3.c:    g_free(s->header_buf);
+l2tpv3.c:    g_free(s->dgram_dst);
+l2tpv3.c:    int fd = -1, gairet;
+l2tpv3.c:    s->queue_head = 0;
+l2tpv3.c:    s->queue_tail = 0;
+l2tpv3.c:    s->header_mismatch = false;
+l2tpv3.c:    assert(netdev->type == NET_CLIENT_DRIVER_L2TPV3);
+l2tpv3.c:    l2tpv3 = &netdev->u.l2tpv3;
+l2tpv3.c:    if (l2tpv3->has_ipv6 && l2tpv3->ipv6) {
+l2tpv3.c:        s->ipv6 = l2tpv3->ipv6;
+l2tpv3.c:        s->ipv6 = false;
+l2tpv3.c:    if ((l2tpv3->has_offset) && (l2tpv3->offset > 256)) {
+l2tpv3.c:    if (l2tpv3->has_rxcookie || l2tpv3->has_txcookie) {
+l2tpv3.c:        if (l2tpv3->has_rxcookie && l2tpv3->has_txcookie) {
+l2tpv3.c:            s->cookie = true;
+l2tpv3.c:        s->cookie = false;
+l2tpv3.c:    if (l2tpv3->has_cookie64 || l2tpv3->cookie64) {
+l2tpv3.c:        s->cookie_is_64  = true;
+l2tpv3.c:        s->cookie_is_64  = false;
+l2tpv3.c:    if (l2tpv3->has_udp && l2tpv3->udp) {
+l2tpv3.c:        s->udp = true;
+l2tpv3.c:        if (!(l2tpv3->srcport && l2tpv3->dstport)) {
+l2tpv3.c:            srcport = l2tpv3->srcport;
+l2tpv3.c:            dstport = l2tpv3->dstport;
+l2tpv3.c:        s->udp = false;
+l2tpv3.c:    s->offset = 4;
+l2tpv3.c:    s->session_offset = 0;
+l2tpv3.c:    s->cookie_offset = 4;
+l2tpv3.c:    s->counter_offset = 4;
+l2tpv3.c:    s->tx_session = l2tpv3->txsession;
+l2tpv3.c:    if (l2tpv3->has_rxsession) {
+l2tpv3.c:        s->rx_session = l2tpv3->rxsession;
+l2tpv3.c:        s->rx_session = s->tx_session;
+l2tpv3.c:    if (s->cookie) {
+l2tpv3.c:        s->rx_cookie = l2tpv3->rxcookie;
+l2tpv3.c:        s->tx_cookie = l2tpv3->txcookie;
+l2tpv3.c:        if (s->cookie_is_64 == true) {
+l2tpv3.c:            s->offset += 8;
+l2tpv3.c:            s->counter_offset += 8;
+l2tpv3.c:            s->offset += 4;
+l2tpv3.c:            s->counter_offset += 4;
+l2tpv3.c:    if (s->ipv6) {
+l2tpv3.c:    if (s->udp) {
+l2tpv3.c:        s->offset += 4;
+l2tpv3.c:        s->counter_offset += 4;
+l2tpv3.c:        s->session_offset += 4;
+l2tpv3.c:        s->cookie_offset += 4;
+l2tpv3.c:    gairet = getaddrinfo(l2tpv3->src, srcport, &hints, &result);
+l2tpv3.c:    fd = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+l2tpv3.c:    if (fd == -1) {
+l2tpv3.c:        fd = -errno;
+l2tpv3.c:                   -fd);
+l2tpv3.c:    if (bind(fd, (struct sockaddr *) result->ai_addr, result->ai_addrlen)) {
+l2tpv3.c:    if (s->ipv6) {
+l2tpv3.c:    if (s->udp) {
+l2tpv3.c:    gairet = getaddrinfo(l2tpv3->dst, dstport, &hints, &result);
+l2tpv3.c:    s->dgram_dst = g_new0(struct sockaddr_storage, 1);
+l2tpv3.c:    memcpy(s->dgram_dst, result->ai_addr, result->ai_addrlen);
+l2tpv3.c:    s->dst_size = result->ai_addrlen;
+l2tpv3.c:    if (l2tpv3->has_counter && l2tpv3->counter) {
+l2tpv3.c:        s->has_counter = true;
+l2tpv3.c:        s->offset += 4;
+l2tpv3.c:        s->has_counter = false;
+l2tpv3.c:    if (l2tpv3->has_pincounter && l2tpv3->pincounter) {
+l2tpv3.c:        s->has_counter = true;  /* pin counter implies that there is counter */
+l2tpv3.c:        s->pin_counter = true;
+l2tpv3.c:        s->pin_counter = false;
+l2tpv3.c:    if (l2tpv3->has_offset) {
+l2tpv3.c:        s->offset += l2tpv3->offset;
+l2tpv3.c:    if ((s->ipv6) || (s->udp)) {
+l2tpv3.c:        s->header_size = s->offset;
+l2tpv3.c:        s->header_size = s->offset + sizeof(struct iphdr);
+l2tpv3.c:    s->msgvec = build_l2tpv3_vector(s, MAX_L2TPV3_MSGCNT);
+l2tpv3.c:    s->vec = g_new(struct iovec, MAX_L2TPV3_IOVCNT);
+l2tpv3.c:    s->header_buf = g_malloc(s->header_size);
+l2tpv3.c:    s->fd = fd;
+l2tpv3.c:    s->counter = 0;
+l2tpv3.c:    qemu_set_info_str(&s->nc, "l2tpv3: connected");
+l2tpv3.c:    return -1;
+meson.build:  'colo-compare.c',
+meson.build:  'filter-buffer.c',
+meson.build:  'filter-mirror.c',
+meson.build:  'filter-rewriter.c',
+meson.build:  'net-hmp-cmds.c',
+meson.build:softmmu_ss.add(when: 'CONFIG_TCG', if_true: files('filter-replay.c'))
+meson.build:  softmmu_ss.add(when: 'CONFIG_VIRTIO_NET', if_true: files('vhost-user.c'), if_false: files('vhost-user-stub.c'))
+meson.build:  softmmu_ss.add(when: 'CONFIG_ALL', if_true: files('vhost-user-stub.c'))
+meson.build:softmmu_ss.add(when: 'CONFIG_LINUX', if_true: files('tap-linux.c'))
+meson.build:softmmu_ss.add(when: 'CONFIG_BSD', if_true: files('tap-bsd.c'))
+meson.build:softmmu_ss.add(when: 'CONFIG_SOLARIS', if_true: files('tap-solaris.c'))
+meson.build:  tap_posix += 'tap-stub.c'
+meson.build:softmmu_ss.add(when: 'CONFIG_WIN32', if_true: files('tap-win32.c'))
+meson.build:  softmmu_ss.add(when: 'CONFIG_VIRTIO_NET', if_true: files('vhost-vdpa.c'), if_false: files('vhost-vdpa-stub.c'))
+meson.build:  softmmu_ss.add(when: 'CONFIG_ALL', if_true: files('vhost-vdpa-stub.c'))
+meson.build:  'vmnet-common.m',
+meson.build:  'vmnet-bridged.m',
+meson.build:  'vmnet-host.c',
+meson.build:  'vmnet-shared.c'
+net-hmp-cmds.c: * the COPYING file in the top-level directory.
+net-hmp-cmds.c: * Contributions after 2012-01-13 are licensed under the terms of the
+net-hmp-cmds.c:#include "qapi/clone-visitor.h"
+net-hmp-cmds.c:#include "qapi/qapi-commands-net.h"
+net-hmp-cmds.c:#include "qapi/qapi-visit-net.h"
+net-hmp-cmds.c:#include "qemu/config-file.h"
+net-hmp-cmds.c:        peer = nc->peer;
+net-hmp-cmds.c:        type = nc->info->type;
+net-hmp-cmds.c:    qapi_free_strList(params->interfaces);
+net-hmp-cmds.c:    params->interfaces = hmp_split_at_comma(interfaces_str);
+net-hmp-cmds.c:    params->has_interfaces = params->interfaces != NULL;
+net-hmp-cmds.c:    params->id = g_strdup(id);
+net-hmp-cmds.c:            readline_add_completion_of(rs, str, ncs[i]->name);
+net-hmp-cmds.c:        if (ncs[i]->is_netdev) {
+net-hmp-cmds.c:            readline_add_completion_of(rs, str, ncs[i]->name);
+net.c: * Copyright (c) 2003-2008 Fabrice Bellard
+net.c:#include "hw/qdev-properties.h"
+net.c:#include "qapi/qapi-commands-net.h"
+net.c:#include "qapi/qapi-visit-net.h"
+net.c:#include "qemu/error-report.h"
+net.c:#include "qemu/config-file.h"
+net.c:#include "qemu/qemu-print.h"
+net.c:#include "qemu/main-loop.h"
+net.c:#include "qapi/opts-visitor.h"
+net.c:#include "net/colo-compare.h"
+net.c:#include "qapi/string-output-visitor.h"
+net.c:#include "qapi/qobject-input-visitor.h"
+net.c:    saddr->sin_family = AF_INET;
+net.c:        saddr->sin_addr.s_addr = 0;
+net.c:            if (!inet_aton(host, &saddr->sin_addr)) {
+net.c:                return -1;
+net.c:                return -1;
+net.c:            saddr->sin_addr = *(struct in_addr *)he->h_addr;
+net.c:        return -1;
+net.c:    saddr->sin_port = htons(p);
+net.c:        ret = -1;
+net.c:    vsnprintf(nc->info_str, sizeof(nc->info_str), fmt, ap);
+net.c:                      nc->model, macaddr[0], macaddr[1], macaddr[2],
+net.c:        if (macaddr->a[5] == index) {
+net.c:    if (memcmp(macaddr->a, &base.a, (sizeof(base.a) - 1)) != 0) {
+net.c:        if (macaddr->a[5] == index) {
+net.c:            mac_table[index]--;
+net.c:    return -1;
+net.c:        if (memcmp(macaddr->a, &base.a, (sizeof(base.a) - 1)) != 0) {
+net.c:    macaddr->a[0] = 0x52;
+net.c:    macaddr->a[1] = 0x54;
+net.c:    macaddr->a[2] = 0x00;
+net.c:    macaddr->a[3] = 0x12;
+net.c:    macaddr->a[4] = 0x34;
+net.c:    macaddr->a[5] = qemu_macaddr_get_free();
+net.c: * Only net clients created with the legacy -net option and NICs need this.
+net.c:        if (strcmp(nc->model, model) == 0) {
+net.c:    nc->info = info;
+net.c:    nc->model = g_strdup(model);
+net.c:        nc->name = g_strdup(name);
+net.c:        nc->name = assign_name(nc, model);
+net.c:        assert(!peer->peer);
+net.c:        nc->peer = peer;
+net.c:        peer->peer = nc;
+net.c:    nc->incoming_queue = qemu_new_net_queue(qemu_deliver_packet_iov, nc);
+net.c:    nc->destructor = destructor;
+net.c:    nc->is_datapath = is_datapath;
+net.c:    QTAILQ_INIT(&nc->filters);
+net.c:    assert(info->size >= sizeof(NetClientState));
+net.c:    nc = g_malloc0(info->size);
+net.c:    assert(info->size >= sizeof(NetClientState));
+net.c:    nc = g_malloc0(info->size);
+net.c:    NetClientState **peers = conf->peers.ncs;
+net.c:    int i, queues = MAX(1, conf->peers.queues);
+net.c:    assert(info->type == NET_CLIENT_DRIVER_NIC);
+net.c:    assert(info->size >= sizeof(NICState));
+net.c:    nic = g_malloc0(info->size + sizeof(NetClientState) * queues);
+net.c:    nic->ncs = (void *)nic + info->size;
+net.c:    nic->conf = conf;
+net.c:    nic->opaque = opaque;
+net.c:        qemu_net_client_setup(&nic->ncs[i], info, peers[i], model, name,
+net.c:        nic->ncs[i].queue_index = i;
+net.c:    return nic->ncs + queue_index;
+net.c:    NetClientState *nc0 = nc - nc->queue_index;
+net.c:    return (NICState *)((void *)nc0 - nc->info->size);
+net.c:    return nic->opaque;
+net.c:    return ncs->peer;
+net.c:    if (nc->info->cleanup) {
+net.c:        nc->info->cleanup(nc);
+net.c:    if (nc->incoming_queue) {
+net.c:        qemu_del_net_queue(nc->incoming_queue);
+net.c:    if (nc->peer) {
+net.c:        nc->peer->peer = NULL;
+net.c:    g_free(nc->name);
+net.c:    g_free(nc->model);
+net.c:    if (nc->destructor) {
+net.c:        nc->destructor(nc);
+net.c:    assert(nc->info->type != NET_CLIENT_DRIVER_NIC);
+net.c:    queues = qemu_find_net_clients_except(nc->name, ncs,
+net.c:    QTAILQ_FOREACH_SAFE(nf, &nc->filters, next, next) {
+net.c:    if (nc->peer && nc->peer->info->type == NET_CLIENT_DRIVER_NIC) {
+net.c:        NICState *nic = qemu_get_nic(nc->peer);
+net.c:        if (nic->peer_deleted) {
+net.c:        nic->peer_deleted = true;
+net.c:            ncs[i]->peer->link_down = true;
+net.c:        if (nc->peer->info->link_status_changed) {
+net.c:            nc->peer->info->link_status_changed(nc->peer);
+net.c:    int i, queues = MAX(nic->conf->peers.queues, 1);
+net.c:    qemu_macaddr_set_free(&nic->conf->macaddr);
+net.c:        if (nic->peer_deleted) {
+net.c:            qemu_free_net_client(nc->peer);
+net.c:        } else if (nc->peer) {
+net.c:            qemu_purge_queued_packets(nc->peer);
+net.c:    for (i = queues - 1; i >= 0; i--) {
+net.c:        if (nc->info->type == NET_CLIENT_DRIVER_NIC) {
+net.c:            if (nc->queue_index == 0) {
+net.c:    if (!nc || !nc->info->has_ufo) {
+net.c:    return nc->info->has_ufo(nc);
+net.c:    if (!nc || !nc->info->has_vnet_hdr) {
+net.c:    return nc->info->has_vnet_hdr(nc);
+net.c:    if (!nc || !nc->info->has_vnet_hdr_len) {
+net.c:    return nc->info->has_vnet_hdr_len(nc, len);
+net.c:    if (!nc || !nc->info->using_vnet_hdr) {
+net.c:    nc->info->using_vnet_hdr(nc, enable);
+net.c:    if (!nc || !nc->info->set_offload) {
+net.c:    nc->info->set_offload(nc, csum, tso4, tso6, ecn, ufo);
+net.c:    if (!nc || !nc->info->set_vnet_hdr_len) {
+net.c:    nc->vnet_hdr_len = len;
+net.c:    nc->info->set_vnet_hdr_len(nc, len);
+net.c:    if (!nc || !nc->info->set_vnet_le) {
+net.c:        return -ENOSYS;
+net.c:    return nc->info->set_vnet_le(nc, is_le);
+net.c:    if (!nc || !nc->info->set_vnet_be) {
+net.c:        return -ENOSYS;
+net.c:    return nc->info->set_vnet_be(nc, is_be);
+net.c:    if (nc->receive_disabled) {
+net.c:    } else if (nc->info->can_receive &&
+net.c:               !nc->info->can_receive(nc)) {
+net.c:    if (!sender->peer) {
+net.c:    return qemu_can_receive_packet(sender->peer);
+net.c:        QTAILQ_FOREACH(nf, &nc->filters, next) {
+net.c:        QTAILQ_FOREACH_REVERSE(nf, &nc->filters, next) {
+net.c:    if (!nc->peer) {
+net.c:    qemu_net_queue_purge(nc->peer->incoming_queue, nc);
+net.c:    nc->receive_disabled = 0;
+net.c:    if (nc->peer && nc->peer->info->type == NET_CLIENT_DRIVER_HUBPORT) {
+net.c:        if (net_hub_flush(nc->peer)) {
+net.c:    if (qemu_net_queue_flush(nc->incoming_queue)) {
+net.c:        qemu_net_queue_purge(nc->incoming_queue, nc->peer);
+net.c:    if (sender->link_down || !sender->peer) {
+net.c:    ret = filter_receive(sender->peer, NET_FILTER_DIRECTION_RX,
+net.c:    queue = sender->peer->incoming_queue;
+net.c:    return qemu_net_queue_receive(nc->incoming_queue, buf, size);
+net.c:    return qemu_net_queue_receive_iov(nc->incoming_queue, iov, iovcnt);
+net.c:            return -1;
+net.c:    if (flags & QEMU_NET_PACKET_FLAG_RAW && nc->info->receive_raw) {
+net.c:        ret = nc->info->receive_raw(nc, buffer, offset);
+net.c:        printf("QEMU_mod: nc->info->receive = %p, nc_sendv_compat = %p.\n", nc->info->receive, nc_sendv_compat);
+net.c:        ret = nc->info->receive(nc, buffer, offset);
+net.c:    if (nc->link_down) {
+net.c:    if (nc->receive_disabled) {
+net.c:    if (nc->info->receive_iov && !(flags & QEMU_NET_PACKET_FLAG_RAW)) {
+net.c:        printf("QEMU mod: qemu_deliver_packet_iov = %p, nc->info->receive_iov = %p.\n", qemu_deliver_packet_iov, nc->info->receive_iov);
+net.c:        ret = nc->info->receive_iov(nc, iov, iovcnt);
+net.c:        nc->receive_disabled = 1;
+net.c:    if (sender->link_down || !sender->peer) {
+net.c:    ret = filter_receive_iov(sender->peer, NET_FILTER_DIRECTION_RX, sender,
+net.c:    queue = sender->peer->incoming_queue;
+net.c:        if (nc->info->type == NET_CLIENT_DRIVER_NIC)
+net.c:        if (!strcmp(nc->name, id)) {
+net.c:        if (nc->info->type == type) {
+net.c:        if (!id || !strcmp(nc->name, id)) {
+net.c:    return -1;
+net.c:    if (qemu_show_nic_models(nd->model, models))
+net.c:    if (!nd->model)
+net.c:        nd->model = g_strdup(default_model);
+net.c:        if (strcmp(nd->model, models[i]) == 0)
+net.c:    error_report("Unsupported NIC model: %s", nd->model);
+net.c:    return -1;
+net.c:    assert(netdev->type == NET_CLIENT_DRIVER_NIC);
+net.c:    nic = &netdev->u.nic;
+net.c:    if (idx == -1 || nb_nics >= MAX_NICS) {
+net.c:        return -1;
+net.c:    if (nic->netdev) {
+net.c:        nd->netdev = qemu_find_netdev(nic->netdev);
+net.c:        if (!nd->netdev) {
+net.c:            error_setg(errp, "netdev '%s' not found", nic->netdev);
+net.c:            return -1;
+net.c:        nd->netdev = peer;
+net.c:    nd->name = g_strdup(name);
+net.c:    if (nic->model) {
+net.c:        nd->model = g_strdup(nic->model);
+net.c:    if (nic->addr) {
+net.c:        nd->devaddr = g_strdup(nic->addr);
+net.c:    if (nic->macaddr &&
+net.c:        net_parse_macaddr(nd->macaddr.a, nic->macaddr) < 0) {
+net.c:        return -1;
+net.c:    if (nic->macaddr &&
+net.c:        is_multicast_ether_addr(nd->macaddr.a)) {
+net.c:        return -1;
+net.c:    qemu_macaddr_default_if_unset(&nd->macaddr);
+net.c:    if (nic->has_vectors) {
+net.c:        if (nic->vectors > 0x7ffffff) {
+net.c:            error_setg(errp, "invalid # of vectors: %"PRIu32, nic->vectors);
+net.c:            return -1;
+net.c:        nd->nvectors = nic->vectors;
+net.c:        nd->nvectors = DEV_NVECTORS_UNSPECIFIED;
+net.c:    nd->used = 1;
+net.c:        if (netdev->type == NET_CLIENT_DRIVER_NIC ||
+net.c:            !net_client_init_fun[netdev->type]) {
+net.c:                       NetClientDriver_str(netdev->type));
+net.c:            return -1;
+net.c:        if (netdev->type == NET_CLIENT_DRIVER_NONE) {
+net.c:        if (netdev->type == NET_CLIENT_DRIVER_HUBPORT) {
+net.c:            error_setg(errp, "network backend '%s' is only supported with -netdev/-nic",
+net.c:                       NetClientDriver_str(netdev->type));
+net.c:            return -1;
+net.c:        if (!net_client_init_fun[netdev->type]) {
+net.c:                       NetClientDriver_str(netdev->type));
+net.c:            return -1;
+net.c:        if (netdev->type != NET_CLIENT_DRIVER_NIC ||
+net.c:            !netdev->u.nic.netdev) {
+net.c:    nc = qemu_find_netdev(netdev->id);
+net.c:        error_setg(errp, "Duplicate ID '%s'", netdev->id);
+net.c:        return -1;
+net.c:    if (net_client_init_fun[netdev->type](netdev, netdev->id, peer, errp) < 0) {
+net.c:                       NetClientDriver_str(netdev->type));
+net.c:        return -1;
+net.c:        nc = qemu_find_netdev(netdev->id);
+net.c:        nc->is_netdev = true;
+net.c:        "vhost-user",
+net.c:        "vhost-vdpa",
+net.c:        "vmnet-host",
+net.c:        "vmnet-shared",
+net.c:        "vmnet-bridged",
+net.c:    int ret = -1;
+net.c:    /* Parse convenience option format ip6-net=fec0::0[/64] */
+net.c:    const char *ip6_net = qemu_opt_get(opts, "ipv6-net");
+net.c:            error_setg(errp, QERR_INVALID_PARAMETER_VALUE, "ipv6-net",
+net.c:        /* Handle user-specified prefix length. */
+net.c:                       "ipv6-prefixlen", "a number");
+net.c:        qemu_opt_set(opts, "ipv6-prefix", prefix_addr, &error_abort);
+net.c:        qemu_opt_set_number(opts, "ipv6-prefixlen", prefix_len,
+net.c:        qemu_opt_unset(opts, "ipv6-net");
+net.c:    /* Create an ID for -net if the user did not specify one */
+net.c:    if (!id_wellformed(netdev->id)) {
+net.c:    if (!nc->is_netdev) {
+net.c:        if (!strcmp(prop->name, "type")) {
+net.c:        object_property_get(OBJECT(nf), prop->name, v, NULL);
+net.c:        monitor_printf(mon, ",%s=%s", prop->name, str);
+net.c:    monitor_printf(mon, "%s: index=%d,type=%s,%s\n", nc->name,
+net.c:                   nc->queue_index,
+net.c:                   NetClientDriver_str(nc->info->type),
+net.c:                   nc->info_str);
+net.c:    if (!QTAILQ_EMPTY(&nc->filters)) {
+net.c:    QTAILQ_FOREACH(nf, &nc->filters, next) {
+net.c:        monitor_printf(mon, "  - %s: type=%s",
+net.c:        if (name && strcmp(nc->name, name) != 0) {
+net.c:        /* only query rx-filter information of NIC */
+net.c:        if (nc->info->type != NET_CLIENT_DRIVER_NIC) {
+net.c:        if (nc->queue_index != 0)
+net.c:        if (nc->info->query_rx_filter) {
+net.c:            info = nc->info->query_rx_filter(nc);
+net.c:                       " rx-filter querying", name);
+net.c:        QTAILQ_FOREACH(nf, &nc->filters, next) {
+net.c:            nfc->handle_event(nf, event, &local_err);
+net.c:        ncs[i]->link_down = !up;
+net.c:    if (nc->info->link_status_changed) {
+net.c:        nc->info->link_status_changed(nc);
+net.c:    if (nc->peer) {
+net.c:        if (nc->peer->info->type == NET_CLIENT_DRIVER_NIC) {
+net.c:                ncs[i]->peer->link_down = !up;
+net.c:        if (nc->peer->info->link_status_changed) {
+net.c:            nc->peer->info->link_status_changed(nc->peer);
+net.c:            if (nc->peer && qemu_can_send_packet(nc)) {
+net.c:                qemu_flush_queued_packets(nc->peer);
+net.c:        if (nc->info->type == NET_CLIENT_DRIVER_NIC) {
+net.c:        if (!nc->peer) {
+net.c:                        nc->info->type == NET_CLIENT_DRIVER_NIC
+net.c:                        nc->name);
+net.c:    /* Check that all NICs requested via -net nic actually got created.
+net.c:     * NICs created via -device don't need to be checked here because
+net.c:        if (nd->used && !nd->instantiated) {
+net.c:                        nd->name ? nd->name : "anonymous",
+net.c:                        nd->model ? nd->model : "unspecified");
+net.c:/* For the convenience "--nic" parameter */
+net.c:    if (idx == -1 || nb_nics >= MAX_NICS) {
+net.c:        error_setg(errp, "no more on-board/default NIC slots available");
+net.c:        return -1;
+net.c:    ni->model = qemu_opt_get_del(opts, "model");
+net.c:        ret = net_parse_macaddr(ni->macaddr.a, mac);
+net.c:        if (is_multicast_ether_addr(ni->macaddr.a)) {
+net.c:            ret = -1;
+net.c:    qemu_macaddr_default_if_unset(&ni->macaddr);
+net.c:        ni->netdev = qemu_find_netdev(nd_id);
+net.c:        ni->used = true;
+net.c:        loc_push_restore(&nd->loc);
+net.c:        net_client_init1(nd->nd, true, &error_fatal);
+net.c:        loc_pop(&nd->loc);
+net.c:        qapi_free_Netdev(nd->nd);
+net.c: * Does this -netdev argument use modern rather than traditional syntax?
+net.c: * net_client_parse(), but supports only the -netdev option.
+net.c:    visit_type_Netdev(v, NULL, &nd->nd, &error_fatal);
+net.c:    loc_save(&nd->loc);
+net.c:    rs->state = 0;
+net.c:    rs->vnet_hdr = vnet_hdr;
+net.c:    rs->index = 0;
+net.c:    rs->packet_len = 0;
+net.c:    rs->vnet_hdr_len = 0;
+net.c:    memset(rs->buf, 0, sizeof(rs->buf));
+net.c:    rs->finalize = finalize;
+net.c: * -1: error occurs
+net.c:        switch (rs->state) {
+net.c:            l = 4 - rs->index;
+net.c:            memcpy(rs->buf + rs->index, buf, l);
+net.c:            size -= l;
+net.c:            rs->index += l;
+net.c:            if (rs->index == 4) {
+net.c:                rs->packet_len = ntohl(*(uint32_t *)rs->buf);
+net.c:                rs->index = 0;
+net.c:                if (rs->vnet_hdr) {
+net.c:                    rs->state = 1;
+net.c:                    rs->state = 2;
+net.c:                    rs->vnet_hdr_len = 0;
+net.c:            l = 4 - rs->index;
+net.c:            memcpy(rs->buf + rs->index, buf, l);
+net.c:            size -= l;
+net.c:            rs->index += l;
+net.c:            if (rs->index == 4) {
+net.c:                rs->vnet_hdr_len = ntohl(*(uint32_t *)rs->buf);
+net.c:                rs->index = 0;
+net.c:                rs->state = 2;
+net.c:            l = rs->packet_len - rs->index;
+net.c:            if (rs->index + l <= sizeof(rs->buf)) {
+net.c:                memcpy(rs->buf + rs->index, buf, l);
+net.c:                rs->index = rs->state = 0;
+net.c:                return -1;
+net.c:            rs->index += l;
+net.c:            size -= l;
+net.c:            if (rs->index >= rs->packet_len) {
+net.c:                rs->index = 0;
+net.c:                rs->state = 0;
+net.c:                assert(rs->finalize);
+net.c:                rs->finalize(rs);
+netmap.c: * Copyright (c) 2012-2013 Luigi Rizzo
+netmap.c:#include "qemu/error-report.h"
+netmap.c:#include "qemu/main-loop.h"
+netmap.c:    int                 vnet_hdr_len;  /* Current virtio-net header length. */
+netmap.c:    for (; l > 0; l -= 64) {
+netmap.c:    nmd = nm_open(nm_opts->ifname, &req, NETMAP_NO_TX_POLL,
+netmap.c:                         nm_opts->ifname);
+netmap.c:/* Set the event-loop handlers for the netmap backend. */
+netmap.c:    qemu_set_fd_handler(s->nmd->fd,
+netmap.c:                        s->read_poll ? netmap_send : NULL,
+netmap.c:                        s->write_poll ? netmap_writable : NULL,
+netmap.c:    if (s->read_poll != enable) { /* Do nothing if not changed. */
+netmap.c:        s->read_poll = enable;
+netmap.c:    if (s->write_poll != enable) {
+netmap.c:        s->write_poll = enable;
+netmap.c:    if (s->read_poll != enable || s->write_poll != enable) {
+netmap.c:        s->write_poll = enable;
+netmap.c:        s->read_poll  = enable;
+netmap.c:    qemu_flush_queued_packets(&s->nc);
+netmap.c:    struct netmap_ring *ring = s->tx;
+netmap.c:    unsigned int tail = ring->tail;
+netmap.c:    last = i = ring->head;
+netmap.c:         * (e.g., we don't advance ring->head). */
+netmap.c:        ring->cur = tail;
+netmap.c:            nm_frag_size = MIN(iov_frag_size, ring->nr_buf_size);
+netmap.c:                ring->cur = tail;
+netmap.c:            idx = ring->slot[i].buf_idx;
+netmap.c:            ring->slot[i].len = nm_frag_size;
+netmap.c:            ring->slot[i].flags = NS_MOREFRAG;
+netmap.c:            iov_frag_size -= nm_frag_size;
+netmap.c:    ring->slot[last].flags &= ~NS_MOREFRAG;
+netmap.c:    /* Now update ring->head and ring->cur to publish the new slots and
+netmap.c:    ring->head = ring->cur = i;
+netmap.c:    ioctl(s->nmd->fd, NIOCTXSYNC, NULL);
+netmap.c:/* Complete a previous send (backend --> guest) and enable the
+netmap.c:    struct netmap_ring *ring = s->rx;
+netmap.c:    unsigned int tail = ring->tail;
+netmap.c:    while (ring->head != tail) {
+netmap.c:        uint32_t i = ring->head;
+netmap.c:        /* Get a (possibly multi-slot) packet. */
+netmap.c:            idx = ring->slot[i].buf_idx;
+netmap.c:            morefrag = (ring->slot[i].flags & NS_MOREFRAG);
+netmap.c:            s->iov[iovcnt].iov_base = (void *)NETMAP_BUF(ring, idx);
+netmap.c:            s->iov[iovcnt].iov_len = ring->slot[i].len;
+netmap.c:        /* Advance ring->cur to tell the kernel that we have seen the slots. */
+netmap.c:        ring->cur = i;
+netmap.c:             * incomplete slots by updating ring->head. We will hopefully
+netmap.c:             * re-read the complete packet the next time we are called. */
+netmap.c:        iovsize = qemu_sendv_packet_async(&s->nc, s->iov, iovcnt,
+netmap.c:        ring->head = i;
+netmap.c:    nm_close(s->nmd);
+netmap.c:    s->nmd = NULL;
+netmap.c:    /* Issue a NETMAP_BDG_VNET_HDR command to change the virtio-net header
+netmap.c:     * length for the netmap adapter associated to 's->ifname'.
+netmap.c:    pstrcpy(req.nr_name, sizeof(req.nr_name), s->ifname);
+netmap.c:    return ioctl(s->nmd->fd, NIOCREGIF, &req);
+netmap.c:    int prev_len = s->vnet_hdr_len;
+netmap.c:        error_report("Failed to restore vnet-hdr length %d on %s: %s",
+netmap.c:                     prev_len, s->ifname, strerror(errno));
+netmap.c:/* A netmap interface that supports virtio-net headers always
+netmap.c:        error_report("Unable to set vnet-hdr length %d on %s: %s",
+netmap.c:                     len, s->ifname, strerror(errno));
+netmap.c:        s->vnet_hdr_len = len;
+netmap.c:    /* Setting a virtio-net header length greater than zero automatically
+netmap.c:    if (!s->vnet_hdr_len) {
+netmap.c: * ... -net netmap,ifname="..."
+netmap.c:    const NetdevNetmapOptions *netmap_opts = &netdev->u.netmap;
+netmap.c:        return -1;
+netmap.c:    s->nmd = nmd;
+netmap.c:    s->tx = NETMAP_TXRING(nmd->nifp, 0);
+netmap.c:    s->rx = NETMAP_RXRING(nmd->nifp, 0);
+netmap.c:    s->vnet_hdr_len = 0;
+netmap.c:    pstrcpy(s->ifname, sizeof(s->ifname), netmap_opts->ifname);
+queue.c: * Copyright (c) 2003-2008 Fabrice Bellard
+queue.c:    queue->opaque = opaque;
+queue.c:    queue->nq_maxlen = 10000;
+queue.c:    queue->nq_count = 0;
+queue.c:    queue->deliver = deliver;
+queue.c:    QTAILQ_INIT(&queue->packets);
+queue.c:    queue->delivering = 0;
+queue.c:    QTAILQ_FOREACH_SAFE(packet, &queue->packets, entry, next) {
+queue.c:        QTAILQ_REMOVE(&queue->packets, packet, entry);
+queue.c:    if (queue->nq_count >= queue->nq_maxlen && !sent_cb) {
+queue.c:    packet->sender = sender;
+queue.c:    packet->flags = flags;
+queue.c:    packet->size = size;
+queue.c:    packet->sent_cb = sent_cb;
+queue.c:    memcpy(packet->data, buf, size);
+queue.c:    queue->nq_count++;
+queue.c:    QTAILQ_INSERT_TAIL(&queue->packets, packet, entry);
+queue.c:    if (queue->nq_count >= queue->nq_maxlen && !sent_cb) {
+queue.c:    packet->sender = sender;
+queue.c:    packet->sent_cb = sent_cb;
+queue.c:    packet->flags = flags;
+queue.c:    packet->size = 0;
+queue.c:        memcpy(packet->data + packet->size, iov[i].iov_base, len);
+queue.c:        packet->size += len;
+queue.c:    queue->nq_count++;
+queue.c:    QTAILQ_INSERT_TAIL(&queue->packets, packet, entry);
+queue.c:    ssize_t ret = -1;
+queue.c:    queue->delivering = 1;
+queue.c:    printf("QEMU mod: queue->deliver = %p, qemu_net_queue_deliver = %p.\n", queue->deliver, qemu_net_queue_deliver);
+queue.c:    ret = queue->deliver(sender, flags, &iov, 1, queue->opaque);
+queue.c:    queue->delivering = 0;
+queue.c:    ssize_t ret = -1;
+queue.c:    queue->delivering = 1;
+queue.c:    ret = queue->deliver(sender, flags, iov, iovcnt, queue->opaque);
+queue.c:    queue->delivering = 0;
+queue.c:    if (queue->delivering) {
+queue.c:    if (queue->delivering) {
+queue.c:    if (queue->delivering || !qemu_can_send_packet(sender)) {
+queue.c:    if (queue->delivering || !qemu_can_send_packet(sender)) {
+queue.c:    QTAILQ_FOREACH_SAFE(packet, &queue->packets, entry, next) {
+queue.c:        if (packet->sender == from) {
+queue.c:            QTAILQ_REMOVE(&queue->packets, packet, entry);
+queue.c:            queue->nq_count--;
+queue.c:            if (packet->sent_cb) {
+queue.c:                packet->sent_cb(packet->sender, 0);
+queue.c:    if (queue->delivering) {
+queue.c:    while (!QTAILQ_EMPTY(&queue->packets)) {
+queue.c:        packet = QTAILQ_FIRST(&queue->packets);
+queue.c:        QTAILQ_REMOVE(&queue->packets, packet, entry);
+queue.c:        queue->nq_count--;
+queue.c:                                     packet->sender,
+queue.c:                                     packet->flags,
+queue.c:                                     packet->data,
+queue.c:                                     packet->size);
+queue.c:            queue->nq_count++;
+queue.c:            QTAILQ_INSERT_HEAD(&queue->packets, packet, entry);
+queue.c:        if (packet->sent_cb) {
+queue.c:            packet->sent_cb(packet->sender, ret);
+slirp.c: * Copyright (c) 2003-2008 Fabrice Bellard
+slirp.c:#include "qemu/error-report.h"
+slirp.c:#include "chardev/char-fe.h"
+slirp.c:#include "migration/qemu-file-types.h"
+slirp.c:        return -1;
+slirp.c:    len = p1 - p;
+slirp.c:        if (len > buf_size - 1)
+slirp.c:            len = buf_size - 1;
+slirp.c:    if (net_peer_needs_padding(&s->nc)) {
+slirp.c:    return qemu_send_packet(&s->nc, pkt, pkt_len);
+slirp.c:    slirp_input(s->slirp, buf, size);
+slirp.c:    qemu_chr_fe_deinit(&fwd->hd, true);
+slirp.c:    g_slist_free_full(s->fwd, slirp_free_fwd);
+slirp.c:    main_loop_poll_remove_notifier(&s->poll_notifier);
+slirp.c:    unregister_savevm(NULL, "slirp", s->slirp);
+slirp.c:    slirp_cleanup(s->slirp);
+slirp.c:    if (s->exit_notifier.notify) {
+slirp.c:        qemu_remove_exit_notifier(&s->exit_notifier);
+slirp.c:    s->slirp = slirp;
+slirp.c:    slirp_handle_timer(t->slirp, t->id, t->cb_opaque);
+slirp.c:    t->slirp = s->slirp;
+slirp.c:    t->id = id;
+slirp.c:    t->cb_opaque = cb_opaque;
+slirp.c:    timer_init_full(&t->timer, NULL, QEMU_CLOCK_VIRTUAL,
+slirp.c:    timer_init_full(&t->timer, NULL, QEMU_CLOCK_VIRTUAL,
+slirp.c:    timer_del(&t->timer);
+slirp.c:    timer_mod(&t->timer, expire_timer);
+slirp.c:    int idx = pollfds->len;
+slirp.c:    switch (poll->state) {
+slirp.c:        slirp_pollfds_fill(s->slirp, &poll->timeout,
+slirp.c:                           net_slirp_add_poll, poll->pollfds);
+slirp.c:        slirp_pollfds_poll(s->slirp, poll->state == MAIN_LOOP_POLL_ERR,
+slirp.c:                           net_slirp_get_revents, poll->pollfds);
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:                return -1;
+slirp.c:                return -1;
+slirp.c:                    return -1;
+slirp.c:                           "Invalid netmask provided (must be in range 4-32)");
+slirp.c:                return -1;
+slirp.c:                mask.s_addr = htonl(0xffffffff << (32 - shift));
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:            return -1;
+slirp.c:            return -1;
+slirp.c:            return -1;
+slirp.c:            return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        error_setg(errp, "'tftp-server-name' parameter cannot exceed 255 bytes");
+slirp.c:        return -1;
+slirp.c:    s->slirp = slirp_new(&cfg, &slirp_cb, s);
+slirp.c:                         &savevm_slirp_state, s->slirp);
+slirp.c:    s->poll_notifier.notify = net_slirp_poll_notify;
+slirp.c:    main_loop_poll_add_notifier(&s->poll_notifier);
+slirp.c:    for (config = slirp_configs; config; config = config->next) {
+slirp.c:        if (config->flags & SLIRP_CFG_HOSTFWD) {
+slirp.c:            if (slirp_hostfwd(s, config->str, errp) < 0) {
+slirp.c:            if (slirp_guestfwd(s, config->str, errp) < 0) {
+slirp.c:    s->exit_notifier.notify = slirp_smb_exit;
+slirp.c:    qemu_add_exit_notifier(&s->exit_notifier);
+slirp.c:    return -1;
+slirp.c:        if (strcmp(nc->model, "user")) {
+slirp.c:    err = slirp_remove_hostfwd(s->slirp, is_udp, host_addr, host_port);
+slirp.c:    if (get_str_sep(buf, sizeof(buf), &p, '-') < 0) {
+slirp.c:    if (slirp_add_hostfwd(s->slirp, is_udp, host_addr, host_port, guest_addr,
+slirp.c:        return -1;
+slirp.c:    return -1;
+slirp.c:    if (s->smb_dir) {
+slirp.c:        gchar *cmd = g_strdup_printf("rm -rf %s", s->smb_dir);
+slirp.c:        if (ret == -1 || !WIFEXITED(ret)) {
+slirp.c:        g_free(s->smb_dir);
+slirp.c:        s->smb_dir = NULL;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:        return -1;
+slirp.c:    s->smb_dir = g_dir_make_tmp("qemu-smb.XXXXXX", NULL);
+slirp.c:    if (!s->smb_dir) {
+slirp.c:        return -1;
+slirp.c:    smb_conf = g_strdup_printf("%s/%s", s->smb_dir, "smb.conf");
+slirp.c:        return -1;
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            s->smb_dir,
+slirp.c:            passwd->pw_name
+slirp.c:    smb_cmdline = g_strdup_printf("%s -l %s -s %s",
+slirp.c:             CONFIG_SMBD_COMMAND, s->smb_dir, smb_conf);
+slirp.c:    if (slirp_add_exec(s->slirp, smb_cmdline, &vserver_addr, 139) < 0 ||
+slirp.c:        slirp_add_exec(s->slirp, smb_cmdline, &vserver_addr, 445) < 0) {
+slirp.c:        return -1;
+slirp.c:    return slirp_socket_can_recv(fwd->slirp, fwd->server, fwd->port);
+slirp.c:    slirp_socket_recv(fwd->slirp, fwd->server, fwd->port, buf, size);
+slirp.c:    if (get_str_sep(buf, sizeof(buf), &p, '-') < 0) {
+slirp.c:        if (slirp_add_exec(s->slirp, &p[4], &server, port) < 0) {
+slirp.c:            return -1;
+slirp.c:            return -1;
+slirp.c:        qemu_chr_fe_init(&fwd->hd, chr, &err);
+slirp.c:            return -1;
+slirp.c:        if (slirp_add_guestfwd(s->slirp, guestfwd_write, &fwd->hd,
+slirp.c:            qemu_chr_fe_deinit(&fwd->hd, true);
+slirp.c:            return -1;
+slirp.c:        fwd->server = server;
+slirp.c:        fwd->port = port;
+slirp.c:        fwd->slirp = s->slirp;
+slirp.c:        qemu_chr_fe_set_handlers(&fwd->hd, guestfwd_can_read, guestfwd_read,
+slirp.c:        s->fwd = g_slist_append(s->fwd, fwd);
+slirp.c:    return -1;
+slirp.c:        bool got_hub_id = net_hub_id_for_client(&s->nc, &id) == 0;
+slirp.c:        char *info = slirp_connection_info(s->slirp);
+slirp.c:                       got_hub_id ? id : -1,
+slirp.c:                       s->nc.name, info);
+slirp.c:        pstrcpy(config->str, sizeof(config->str), fwd->value->str);
+slirp.c:        config->flags = flags;
+slirp.c:        config->next = slirp_configs;
+slirp.c:        fwd = fwd->next;
+slirp.c:        c = c->next;
+slirp.c:        ret[i++] = c->value->str;
+slirp.c:        c = c->next;
+slirp.c:    assert(netdev->type == NET_CLIENT_DRIVER_USER);
+slirp.c:    user = &netdev->u.user;
+slirp.c:    if ((user->has_ipv6 && user->ipv6 && !user->has_ipv4) ||
+slirp.c:        (user->has_ipv4 && !user->ipv4)) {
+slirp.c:    if ((user->has_ipv4 && user->ipv4 && !user->has_ipv6) ||
+slirp.c:        (user->has_ipv6 && !user->ipv6)) {
+slirp.c:    vnet = user->net ? g_strdup(user->net) :
+slirp.c:           user->ip  ? g_strdup_printf("%s/24", user->ip) :
+slirp.c:    dnssearch = slirp_dnssearch(user->dnssearch);
+slirp.c:    net_init_slirp_configs(user->hostfwd, SLIRP_CFG_HOSTFWD);
+slirp.c:    net_init_slirp_configs(user->guestfwd, 0);
+slirp.c:    ret = net_slirp_init(peer, "user", name, user->q_restrict,
+slirp.c:                         ipv4, vnet, user->host,
+slirp.c:                         ipv6, user->ipv6_prefix, user->ipv6_prefixlen,
+slirp.c:                         user->ipv6_host, user->hostname, user->tftp,
+slirp.c:                         user->bootfile, user->dhcpstart,
+slirp.c:                         user->dns, user->ipv6_dns, user->smb,
+slirp.c:                         user->smbserver, dnssearch, user->domainname,
+slirp.c:                         user->tftp_server_name, errp);
+slirp.c:        slirp_configs = config->next;
+socket.c: * Copyright (c) 2003-2008 Fabrice Bellard
+socket.c:#include "qemu/error-report.h"
+socket.c:#include "qemu/main-loop.h"
+socket.c:    qemu_set_fd_handler(s->fd,
+socket.c:                        s->read_poll ? s->send_fn : NULL,
+socket.c:                        s->write_poll ? net_socket_writable : NULL,
+socket.c:    s->read_poll = enable;
+socket.c:    s->write_poll = enable;
+socket.c:    qemu_flush_queued_packets(&s->nc);
+socket.c:    remaining = iov_size(iov, 2) - s->send_index;
+socket.c:    ret = iov_send(s->fd, iov, 2, s->send_index, remaining);
+socket.c:    if (ret == -1 && errno == EAGAIN) {
+socket.c:    if (ret == -1) {
+socket.c:        s->send_index = 0;
+socket.c:        return -errno;
+socket.c:        s->send_index += ret;
+socket.c:    s->send_index = 0;
+socket.c:        s->dgram_dst.sin_family != AF_UNIX ?
+socket.c:            sendto(s->fd, buf, size, 0,
+socket.c:                     (struct sockaddr *)&s->dgram_dst,
+socket.c:                     sizeof(s->dgram_dst)) :
+socket.c:            send(s->fd, buf, size, 0)
+socket.c:    if (ret == -1 && errno == EAGAIN) {
+socket.c:    if (!s->read_poll) {
+socket.c:    if (qemu_send_packet_async(&s->nc, rs->buf,
+socket.c:                               rs->packet_len,
+socket.c:    size = recv(s->fd, buf1, sizeof(buf1), 0);
+socket.c:        if (s->listen_fd != -1) {
+socket.c:            qemu_set_fd_handler(s->listen_fd, net_socket_accept, NULL, s);
+socket.c:        closesocket(s->fd);
+socket.c:        s->fd = -1;
+socket.c:        net_socket_rs_init(&s->rs, net_socket_rs_finalize, false);
+socket.c:        s->nc.link_down = true;
+socket.c:        qemu_set_info_str(&s->nc, "%s", "");
+socket.c:    ret = net_fill_rstate(&s->rs, buf, size);
+socket.c:    if (ret == -1) {
+socket.c:    size = recv(s->fd, s->rs.buf, sizeof(s->rs.buf), 0);
+socket.c:    if (qemu_send_packet_async(&s->nc, s->rs.buf, size,
+socket.c:    if (!IN_MULTICAST(ntohl(mcastaddr->sin_addr.s_addr))) {
+socket.c:                   inet_ntoa(mcastaddr->sin_addr),
+socket.c:                   (int)ntohl(mcastaddr->sin_addr.s_addr));
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:                         inet_ntoa(mcastaddr->sin_addr));
+socket.c:    imr.imr_multiaddr = mcastaddr->sin_addr;
+socket.c:    return -1;
+socket.c:    if (s->fd != -1) {
+socket.c:        close(s->fd);
+socket.c:        s->fd = -1;
+socket.c:    if (s->listen_fd != -1) {
+socket.c:        qemu_set_fd_handler(s->listen_fd, NULL, NULL, NULL);
+socket.c:        closesocket(s->listen_fd);
+socket.c:        s->listen_fd = -1;
+socket.c:    sa_type = sa->type;
+socket.c:     * by ONLY ONE process: we must "clone" this dgram socket --jjo
+socket.c:    s->fd = fd;
+socket.c:    s->listen_fd = -1;
+socket.c:    s->send_fn = net_socket_send_dgram;
+socket.c:    net_socket_rs_init(&s->rs, net_socket_rs_finalize, false);
+socket.c:        s->dgram_dst = saddr;
+socket.c:            s->dgram_dst.sin_family = AF_UNIX;
+socket.c:    s->send_fn = net_socket_send;
+socket.c:    s->fd = fd;
+socket.c:    s->listen_fd = -1;
+socket.c:    net_socket_rs_init(&s->rs, net_socket_rs_finalize, false);
+socket.c:        qemu_set_fd_handler(s->fd, NULL, net_socket_connect, s);
+socket.c:    int so_type = -1, optlen=sizeof(so_type);
+socket.c:        fd = qemu_accept(s->listen_fd, (struct sockaddr *)&saddr, &len);
+socket.c:            qemu_set_fd_handler(s->listen_fd, NULL, NULL, NULL);
+socket.c:    s->fd = fd;
+socket.c:    s->nc.link_down = false;
+socket.c:    qemu_set_info_str(&s->nc, "socket: connection from %s:%d",
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:    s->fd = -1;
+socket.c:    s->listen_fd = fd;
+socket.c:    s->nc.link_down = true;
+socket.c:    net_socket_rs_init(&s->rs, net_socket_rs_finalize, false);
+socket.c:    qemu_set_fd_handler(s->listen_fd, net_socket_accept, NULL, s);
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:                return -1;
+socket.c:        return -1;
+socket.c:    qemu_set_info_str(&s->nc, "socket: connect to %s:%d",
+socket.c:        return -1;
+socket.c:            return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:    s->dgram_dst = saddr;
+socket.c:    qemu_set_info_str(&s->nc, "socket: mcast=%s:%d",
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:        return -1;
+socket.c:    s->dgram_dst = raddr;
+socket.c:    qemu_set_info_str(&s->nc, "socket: udp=%s:%d", inet_ntoa(raddr.sin_addr),
+socket.c:    assert(netdev->type == NET_CLIENT_DRIVER_SOCKET);
+socket.c:    sock = &netdev->u.socket;
+socket.c:    if (!!sock->fd + !!sock->listen + !!sock->connect + !!sock->mcast +
+socket.c:        !!sock->udp != 1) {
+socket.c:        return -1;
+socket.c:    if (sock->localaddr && !sock->mcast && !sock->udp) {
+socket.c:        return -1;
+socket.c:    if (sock->fd) {
+socket.c:        fd = monitor_fd_param(monitor_cur(), sock->fd, errp);
+socket.c:        if (fd == -1) {
+socket.c:            return -1;
+socket.c:            error_setg_errno(errp, -ret, "%s: Can't use file descriptor %d",
+socket.c:            return -1;
+socket.c:        if (!net_socket_fd_init(peer, "socket", name, fd, 1, sock->mcast,
+socket.c:            return -1;
+socket.c:    if (sock->listen) {
+socket.c:        if (net_socket_listen_init(peer, "socket", name, sock->listen, errp)
+socket.c:            return -1;
+socket.c:    if (sock->connect) {
+socket.c:        if (net_socket_connect_init(peer, "socket", name, sock->connect, errp)
+socket.c:            return -1;
+socket.c:    if (sock->mcast) {
+socket.c:        /* if sock->localaddr is missing, it has been initialized to "all bits
+socket.c:        if (net_socket_mcast_init(peer, "socket", name, sock->mcast,
+socket.c:                                  sock->localaddr, errp) < 0) {
+socket.c:            return -1;
+socket.c:    assert(sock->udp);
+socket.c:    if (!sock->localaddr) {
+socket.c:        return -1;
+socket.c:    if (net_socket_udp_init(peer, "socket", name, sock->udp, sock->localaddr,
+socket.c:        return -1;
+stream.c: * Copyright (c) 2003-2008 Fabrice Bellard
+stream.c:#include "qemu/error-report.h"
+stream.c:#include "qemu/main-loop.h"
+stream.c:#include "io/channel-socket.h"
+stream.c:#include "io/net-listener.h"
+stream.c:#include "qapi/qapi-events-net.h"
+stream.c:    s->ioc_write_tag = 0;
+stream.c:    qemu_flush_queued_packets(&s->nc);
+stream.c:    remaining = iov_size(iov, 2) - s->send_index;
+stream.c:    nlocal_iov = iov_copy(local_iov, 2, iov, 2, s->send_index, remaining);
+stream.c:    ret = qio_channel_writev(s->ioc, local_iov, nlocal_iov, NULL);
+stream.c:    if (ret == -1) {
+stream.c:        s->send_index = 0;
+stream.c:        return -errno;
+stream.c:        s->send_index += ret;
+stream.c:        s->ioc_write_tag = qio_channel_add_watch(s->ioc, G_IO_OUT,
+stream.c:    s->send_index = 0;
+stream.c:    if (!s->ioc_read_tag) {
+stream.c:        s->ioc_read_tag = qio_channel_add_watch(s->ioc, G_IO_IN,
+stream.c:    if (qemu_send_packet_async(&s->nc, rs->buf,
+stream.c:                               rs->packet_len,
+stream.c:        if (s->ioc_read_tag) {
+stream.c:            g_source_remove(s->ioc_read_tag);
+stream.c:            s->ioc_read_tag = 0;
+stream.c:    size = qio_channel_read(s->ioc, buf1, sizeof(buf1), NULL);
+stream.c:        s->ioc_read_tag = 0;
+stream.c:        if (s->ioc_write_tag) {
+stream.c:            g_source_remove(s->ioc_write_tag);
+stream.c:            s->ioc_write_tag = 0;
+stream.c:        if (s->listener) {
+stream.c:            qio_net_listener_set_client_func(s->listener, net_stream_listen,
+stream.c:        object_unref(OBJECT(s->ioc));
+stream.c:        s->ioc = NULL;
+stream.c:        net_socket_rs_init(&s->rs, net_stream_rs_finalize, false);
+stream.c:        s->nc.link_down = true;
+stream.c:        qemu_set_info_str(&s->nc, "%s", "");
+stream.c:        qapi_event_send_netdev_stream_disconnected(s->nc.name);
+stream.c:    ret = net_fill_rstate(&s->rs, (const uint8_t *)buf, size);
+stream.c:    if (ret == -1) {
+stream.c:    if (s->ioc) {
+stream.c:        if (QIO_CHANNEL_SOCKET(s->ioc)->fd != -1) {
+stream.c:            if (s->ioc_read_tag) {
+stream.c:                g_source_remove(s->ioc_read_tag);
+stream.c:                s->ioc_read_tag = 0;
+stream.c:            if (s->ioc_write_tag) {
+stream.c:                g_source_remove(s->ioc_write_tag);
+stream.c:                s->ioc_write_tag = 0;
+stream.c:        object_unref(OBJECT(s->ioc));
+stream.c:        s->ioc = NULL;
+stream.c:    if (s->listen_ioc) {
+stream.c:        if (s->listener) {
+stream.c:            qio_net_listener_disconnect(s->listener);
+stream.c:            object_unref(OBJECT(s->listener));
+stream.c:            s->listener = NULL;
+stream.c:        object_unref(OBJECT(s->listen_ioc));
+stream.c:        s->listen_ioc = NULL;
+stream.c:    qio_net_listener_set_client_func(s->listener, NULL, s, NULL);
+stream.c:    s->ioc = QIO_CHANNEL(cioc);
+stream.c:    qio_channel_set_name(s->ioc, "stream-server");
+stream.c:    s->nc.link_down = false;
+stream.c:    s->ioc_read_tag = qio_channel_add_watch(s->ioc, G_IO_IN, net_stream_send,
+stream.c:    if (cioc->localAddr.ss_family == AF_UNIX) {
+stream.c:    qemu_set_info_str(&s->nc, "%s", uri);
+stream.c:    qapi_event_send_netdev_stream_connected(s->nc.name, addr);
+stream.c:    QIOChannelSocket *listen_sioc = QIO_CHANNEL_SOCKET(s->listen_ioc);
+stream.c:    if (listen_sioc->fd < 0) {
+stream.c:        qemu_set_info_str(&s->nc, "connection error");
+stream.c:    ret = qemu_socket_try_set_nonblock(listen_sioc->fd);
+stream.c:    if (addr->type == SOCKET_ADDRESS_TYPE_FD && ret < 0) {
+stream.c:        qemu_set_info_str(&s->nc, "can't use file descriptor %s (errno %d)",
+stream.c:                          addr->u.fd.str, -ret);
+stream.c:    s->nc.link_down = true;
+stream.c:    s->listener = qio_net_listener_new();
+stream.c:    net_socket_rs_init(&s->rs, net_stream_rs_finalize, false);
+stream.c:    qio_net_listener_set_client_func(s->listener, net_stream_listen, s, NULL);
+stream.c:    qio_net_listener_add(s->listener, listen_sioc);
+stream.c:    s->listen_ioc = QIO_CHANNEL(listen_sioc);
+stream.c:    QIOChannelSocket *sioc = QIO_CHANNEL_SOCKET(s->ioc);
+stream.c:    if (sioc->fd < 0) {
+stream.c:        qemu_set_info_str(&s->nc, "connection error");
+stream.c:    qemu_set_info_str(&s->nc, "%s", uri);
+stream.c:    ret = qemu_socket_try_set_nonblock(sioc->fd);
+stream.c:    if (addr->type == SOCKET_ADDRESS_TYPE_FD && ret < 0) {
+stream.c:        qemu_set_info_str(&s->nc, "can't use file descriptor %s (errno %d)",
+stream.c:                          addr->u.fd.str, -ret);
+stream.c:    net_socket_rs_init(&s->rs, net_stream_rs_finalize, false);
+stream.c:    qio_channel_set_delay(s->ioc, false);
+stream.c:    s->ioc_read_tag = qio_channel_add_watch(s->ioc, G_IO_IN, net_stream_send,
+stream.c:    s->nc.link_down = false;
+stream.c:    qapi_event_send_netdev_stream_connected(s->nc.name, addr);
+stream.c:    object_unref(OBJECT(s->ioc));
+stream.c:    s->ioc = NULL;
+stream.c:    s->ioc = QIO_CHANNEL(sioc);
+stream.c:    s->nc.link_down = true;
+stream.c:    assert(netdev->type == NET_CLIENT_DRIVER_STREAM);
+stream.c:    sock = &netdev->u.stream;
+stream.c:    if (!sock->has_server || !sock->server) {
+stream.c:        return net_stream_client_init(peer, "stream", name, sock->addr, errp);
+stream.c:    return net_stream_server_init(peer, "stream", name, sock->addr, errp);
+tap-bsd.c: * Copyright (c) 2003-2008 Fabrice Bellard
+tap-bsd.c:#include "qemu/error-report.h"
+tap-bsd.c:        return -1;
+tap-bsd.c:        return -1;
+tap-bsd.c:        return -1;
+tap-bsd.c:            return -1;
+tap-bsd.c:        return -1;
+tap-bsd.c:        return -1;
+tap-bsd.c:            return -1;
+tap-bsd.c:            return -1;
+tap-bsd.c:    int fd = -1;
+tap-bsd.c:            return -1;
+tap-bsd.c:            return -1;
+tap-bsd.c:    return -1;
+tap-bsd.c:    return -EINVAL;
+tap-bsd.c:    return -EINVAL;
+tap-bsd.c:    return -1;
+tap-bsd.c:    return -1;
+tap-bsd.c:    return -1;
+tap-bsd.c:    return -1;
+tap-linux.c: * Copyright (c) 2003-2008 Fabrice Bellard
+tap-linux.c:#include "tap-linux.h"
+tap-linux.c:#include "qemu/error-report.h"
+tap-linux.c:        return -1;
+tap-linux.c:    if (ioctl(fd, TUNGETFEATURES, &features) == -1) {
+tap-linux.c:            return -1;
+tap-linux.c:            return -1;
+tap-linux.c:        return -1;
+tap-linux.c:    sndbuf = !tap->has_sndbuf       ? TAP_DEFAULT_SNDBUF :
+tap-linux.c:             tap->sndbuf > INT_MAX  ? INT_MAX :
+tap-linux.c:             tap->sndbuf;
+tap-linux.c:    if (ioctl(fd, TUNSETSNDBUF, &sndbuf) == -1 && tap->has_sndbuf) {
+tap-linux.c:        return -1;
+tap-linux.c:    if (ioctl(fd, TUNGETVNETHDRSZ, &orig) == -1) {
+tap-linux.c:    if (ioctl(fd, TUNSETVNETHDRSZ, &len) == -1) {
+tap-linux.c:    if (ioctl(fd, TUNSETVNETHDRSZ, &orig) == -1) {
+tap-linux.c:        return -errno;
+tap-linux.c:    if (ioctl(fd, TUNSETVNETHDRSZ, &len) == -1) {
+tap-linux.c:        return -errno;
+tap-linux.c:        return -errno;
+tap-linux.c:        return -1;
+tap-linux.c:       return -1;
+tap-linux.h: *  Copyright (C) 1999-2000 Maxim Krasnyansky <max_mk@yahoo.com>
+tap-solaris.c: * Copyright (c) 2003-2008 Fabrice Bellard
+tap-solaris.c:#include "qemu/error-report.h"
+tap-solaris.c:    return getmsg(tapfd, NULL, &sbuf, &f) >= 0 ? sbuf.len : -1;
+tap-solaris.c:    int tap_fd, if_fd, ppa = -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:        return -1;
+tap-solaris.c:            return -1;
+tap-solaris.c:    return -EINVAL;
+tap-solaris.c:    return -EINVAL;
+tap-solaris.c:    return -1;
+tap-solaris.c:    return -1;
+tap-solaris.c:    return -1;
+tap-solaris.c:    return -1;
+tap-stub.c: * Copyright (c) 2003-2008 Fabrice Bellard
+tap-stub.c:    return -1;
+tap-stub.c:    return -EINVAL;
+tap-stub.c:    return -EINVAL;
+tap-stub.c:    return -1;
+tap-stub.c:    return -1;
+tap-stub.c:    return -1;
+tap-stub.c:    return -1;
+tap-win32.c: *  TAP-Win32 -- A kernel driver to provide virtual tap device functionality
+tap-win32.c: *               on Windows.  Originally derived from the CIPE-Win32
+tap-win32.c: *  All source code which derives from the CIPE-Win32 project is
+tap-win32.c: *  All other source code is Copyright (C) James Yonan, 2003-2004,
+tap-win32.c:#include "qemu/error-report.h"
+tap-win32.c:#include "qemu/main-loop.h"
+tap-win32.c:#define ADAPTER_KEY "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+tap-win32.c:#define NETWORK_CONNECTIONS_KEY "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+tap-win32.c:    WaitForSingleObject(overlapped->free_list_semaphore, INFINITE);
+tap-win32.c:    EnterCriticalSection(&overlapped->free_list_cs);
+tap-win32.c:    buffer = overlapped->free_list;
+tap-win32.c:    overlapped->free_list = buffer->next;
+tap-win32.c:    LeaveCriticalSection(&overlapped->free_list_cs);
+tap-win32.c:    buffer->next = NULL;
+tap-win32.c:    EnterCriticalSection(&overlapped->free_list_cs);
+tap-win32.c:    buffer->next = overlapped->free_list;
+tap-win32.c:    overlapped->free_list = buffer;
+tap-win32.c:    LeaveCriticalSection(&overlapped->free_list_cs);
+tap-win32.c:    ReleaseSemaphore(overlapped->free_list_semaphore, 1, NULL);
+tap-win32.c:    // Non-blocking call
+tap-win32.c:    result = WaitForSingleObject(overlapped->output_queue_semaphore, timeout);
+tap-win32.c:            EnterCriticalSection(&overlapped->output_queue_cs);
+tap-win32.c:            buffer = overlapped->output_queue_front;
+tap-win32.c:            overlapped->output_queue_front = buffer->next;
+tap-win32.c:            if(overlapped->output_queue_front == NULL) {
+tap-win32.c:                overlapped->output_queue_back = NULL;
+tap-win32.c:            LeaveCriticalSection(&overlapped->output_queue_cs);
+tap-win32.c:        // Semaphore was nonsignaled, so a time-out occurred.
+tap-win32.c:    EnterCriticalSection(&overlapped->output_queue_cs);
+tap-win32.c:    if(overlapped->output_queue_front == NULL && overlapped->output_queue_back == NULL) {
+tap-win32.c:        overlapped->output_queue_front = overlapped->output_queue_back = buffer;
+tap-win32.c:        buffer->next = NULL;
+tap-win32.c:        overlapped->output_queue_back->next = buffer;
+tap-win32.c:        overlapped->output_queue_back = buffer;
+tap-win32.c:    LeaveCriticalSection(&overlapped->output_queue_cs);
+tap-win32.c:    ReleaseSemaphore(overlapped->output_queue_semaphore, 1, NULL);
+tap-win32.c:        return -1;
+tap-win32.c:            return -1;
+tap-win32.c:        return -1;
+tap-win32.c:    overlapped->handle = handle;
+tap-win32.c:    overlapped->read_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+tap-win32.c:    overlapped->write_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+tap-win32.c:    overlapped->read_overlapped.Offset = 0;
+tap-win32.c:    overlapped->read_overlapped.OffsetHigh = 0;
+tap-win32.c:    overlapped->read_overlapped.hEvent = overlapped->read_event;
+tap-win32.c:    overlapped->write_overlapped.Offset = 0;
+tap-win32.c:    overlapped->write_overlapped.OffsetHigh = 0;
+tap-win32.c:    overlapped->write_overlapped.hEvent = overlapped->write_event;
+tap-win32.c:    InitializeCriticalSection(&overlapped->output_queue_cs);
+tap-win32.c:    InitializeCriticalSection(&overlapped->free_list_cs);
+tap-win32.c:    overlapped->output_queue_semaphore = CreateSemaphore(
+tap-win32.c:    if(!overlapped->output_queue_semaphore)  {
+tap-win32.c:    overlapped->free_list_semaphore = CreateSemaphore(
+tap-win32.c:    if(!overlapped->free_list_semaphore)  {
+tap-win32.c:    overlapped->free_list = overlapped->output_queue_front = overlapped->output_queue_back = NULL;
+tap-win32.c:            tun_buffer_t* element = &overlapped->buffers[index];
+tap-win32.c:            element->next = overlapped->free_list;
+tap-win32.c:            overlapped->free_list = element;
+tap-win32.c:    /* To count buffers, initially no-signal. */
+tap-win32.c:    overlapped->tap_semaphore = CreateSemaphore(NULL, 0, TUN_MAX_BUFFER_COUNT, NULL);
+tap-win32.c:    if(!overlapped->tap_semaphore)
+tap-win32.c:    result = GetOverlappedResult( overlapped->handle, &overlapped->write_overlapped,
+tap-win32.c:        WaitForSingleObject(overlapped->write_event, INFINITE);
+tap-win32.c:    result = WriteFile(overlapped->handle, buffer, size,
+tap-win32.c:                       &write_size, &overlapped->write_overlapped);
+tap-win32.c:            result = GetOverlappedResult(overlapped->handle,
+tap-win32.c:                                         &overlapped->write_overlapped,
+tap-win32.c:        fprintf(stderr, "Tap-Win32: Error WriteFile %d - %s\n", error, msgbuf);
+tap-win32.c:        result = ReadFile(overlapped->handle,
+tap-win32.c:                          buffer->buffer,
+tap-win32.c:                          sizeof(buffer->buffer),
+tap-win32.c:                          &overlapped->read_overlapped);
+tap-win32.c:                WaitForSingleObject(overlapped->read_event, INFINITE);
+tap-win32.c:                result = GetOverlappedResult( overlapped->handle, &overlapped->read_overlapped,
+tap-win32.c:                    fprintf(stderr, "Tap-Win32: Error GetOverlappedResult %d - %s\n", dwError, lpBuffer);
+tap-win32.c:                fprintf(stderr, "Tap-Win32: Error ReadFile %d - %s\n", dwError, lpBuffer);
+tap-win32.c:            buffer->read_size = read_size;
+tap-win32.c:            ReleaseSemaphore(overlapped->tap_semaphore, 1, NULL);
+tap-win32.c:        *pbuf = buffer->buffer;
+tap-win32.c:        size = (int)buffer->read_size;
+tap-win32.c:        return -1;
+tap-win32.c:        return -1;
+tap-win32.c:        return -1;
+tap-win32.c:        return -1;
+tap-win32.c:    qemu_del_wait_object(s->handle->tap_semaphore, NULL, NULL);
+tap-win32.c:    return tap_win32_write(s->handle, buf, size);
+tap-win32.c:    size = tap_win32_read(s->handle, &buf, max_size);
+tap-win32.c:        if (net_peer_needs_padding(&s->nc)) {
+tap-win32.c:        qemu_send_packet(&s->nc, buf, size);
+tap-win32.c:        tap_win32_free_buffer(s->handle, orig_buf);
+tap-win32.c:    return -EINVAL;
+tap-win32.c:    return -EINVAL;
+tap-win32.c:        return -1;
+tap-win32.c:    qemu_set_info_str(&s->nc, "tap: ifname=%s", ifname);
+tap-win32.c:    s->handle = handle;
+tap-win32.c:    qemu_add_wait_object(s->handle->tap_semaphore, tap_win32_send, s);
+tap-win32.c:    assert(netdev->type == NET_CLIENT_DRIVER_TAP);
+tap-win32.c:    tap = &netdev->u.tap;
+tap-win32.c:    if (!tap->ifname) {
+tap-win32.c:        return -1;
+tap-win32.c:    if (tap_win32_init(peer, "tap", name, tap->ifname) == -1) {
+tap-win32.c:        return -1;
+tap.c: * Copyright (c) 2003-2008 Fabrice Bellard
+tap.c:#include "qemu/error-report.h"
+tap.c:#include "qemu/main-loop.h"
+tap.c:    qemu_set_fd_handler(s->fd,
+tap.c:                        s->read_poll && s->enabled ? tap_send : NULL,
+tap.c:                        s->write_poll && s->enabled ? tap_writable : NULL,
+tap.c:    s->read_poll = enable;
+tap.c:    s->write_poll = enable;
+tap.c:    qemu_flush_queued_packets(&s->nc);
+tap.c:    len = RETRY_ON_EINTR(writev(s->fd, iov, iovcnt));
+tap.c:    if (len == -1 && errno == EAGAIN) {
+tap.c:    if (s->host_vnet_hdr_len && !s->using_vnet_hdr) {
+tap.c:        iov_copy[0].iov_len =  s->host_vnet_hdr_len;
+tap.c:    if (s->host_vnet_hdr_len) {
+tap.c:        iov[iovcnt].iov_len  = s->host_vnet_hdr_len;
+tap.c:    if (s->host_vnet_hdr_len && !s->using_vnet_hdr) {
+tap.c:        uint8_t *buf = s->buf;
+tap.c:        size = tap_read_packet(s->fd, s->buf, sizeof(s->buf));
+tap.c:        if (s->host_vnet_hdr_len && !s->using_vnet_hdr) {
+tap.c:            buf  += s->host_vnet_hdr_len;
+tap.c:            size -= s->host_vnet_hdr_len;
+tap.c:        if (net_peer_needs_padding(&s->nc)) {
+tap.c:        size = qemu_send_packet_async(&s->nc, buf, size, tap_send_completed);
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return s->has_ufo;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return !!s->host_vnet_hdr_len;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return !!tap_probe_vnet_hdr_len(s->fd, len);
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    tap_fd_set_vnet_hdr_len(s->fd, len);
+tap.c:    s->host_vnet_hdr_len = len;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    assert(!!s->host_vnet_hdr_len == using_vnet_hdr);
+tap.c:    s->using_vnet_hdr = using_vnet_hdr;
+tap.c:    return tap_fd_set_vnet_le(s->fd, is_le);
+tap.c:    return tap_fd_set_vnet_be(s->fd, is_be);
+tap.c:    if (s->fd < 0) {
+tap.c:    tap_fd_set_offload(s->fd, csum, tso4, tso6, ecn, ufo);
+tap.c:    if (s->down_script[0]) {
+tap.c:        launch_script(s->down_script, s->down_script_arg, s->fd, &err);
+tap.c:    if (s->vhost_net) {
+tap.c:        vhost_net_cleanup(s->vhost_net);
+tap.c:        g_free(s->vhost_net);
+tap.c:        s->vhost_net = NULL;
+tap.c:    tap_exit_notify(&s->exit, NULL);
+tap.c:    qemu_remove_exit_notifier(&s->exit);
+tap.c:    close(s->fd);
+tap.c:    s->fd = -1;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return tap_fd_set_steering_ebpf(s->fd, prog_fd) == 0;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return s->fd;
+tap.c:    s->fd = fd;
+tap.c:    s->host_vnet_hdr_len = vnet_hdr ? sizeof(struct virtio_net_hdr) : 0;
+tap.c:    s->using_vnet_hdr = false;
+tap.c:    s->has_ufo = tap_probe_has_ufo(s->fd);
+tap.c:    s->enabled = true;
+tap.c:    tap_set_offload(&s->nc, 0, 0, 0, 0, 0);
+tap.c:    if (tap_probe_vnet_hdr_len(s->fd, s->host_vnet_hdr_len)) {
+tap.c:        tap_fd_set_vnet_hdr_len(s->fd, s->host_vnet_hdr_len);
+tap.c:    s->vhost_net = NULL;
+tap.c:    s->exit.notify = tap_exit_notify;
+tap.c:    qemu_add_exit_notifier(&s->exit);
+tap.c:    cmsg->cmsg_level = SOL_SOCKET;
+tap.c:    cmsg->cmsg_type = SCM_RIGHTS;
+tap.c:    cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
+tap.c:    msg.msg_controllen = cmsg->cmsg_len;
+tap.c:    if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) == -1) {
+tap.c:        return -1;
+tap.c:        return -1;
+tap.c:        fd_buf = g_strdup_printf("%s%d", "--fd=", sv[1]);
+tap.c:            if (strstr(helper, "--br=") == NULL) {
+tap.c:                br_buf = g_strdup_printf("%s%s", "--br=", bridge);
+tap.c:                            "--use-vnet", fd_buf, br_buf ? br_buf : "");
+tap.c:            *parg++ = (char *)"-c";
+tap.c:            br_buf = g_strdup_printf("%s%s", "--br=", bridge);
+tap.c:            *parg++ = (char *)"--use-vnet";
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:    assert(netdev->type == NET_CLIENT_DRIVER_BRIDGE);
+tap.c:    bridge = &netdev->u.bridge;
+tap.c:    helper = bridge->helper;
+tap.c:    br     = bridge->br ?: DEFAULT_BRIDGE_INTERFACE;
+tap.c:    if (fd == -1) {
+tap.c:        return -1;
+tap.c:        return -1;
+tap.c:        return -1;
+tap.c:    qemu_set_info_str(&s->nc, "helper=%s,br=%s", helper, br);
+tap.c:    if (tap->has_vnet_hdr) {
+tap.c:        *vnet_hdr = tap->vnet_hdr;
+tap.c:        return -1;
+tap.c:            return -1;
+tap.c:    tap_set_sndbuf(s->fd, tap, &err);
+tap.c:    if (tap->fd || tap->fds) {
+tap.c:        qemu_set_info_str(&s->nc, "fd=%d", fd);
+tap.c:    } else if (tap->helper) {
+tap.c:        qemu_set_info_str(&s->nc, "helper=%s", tap->helper);
+tap.c:        qemu_set_info_str(&s->nc, "ifname=%s,script=%s,downscript=%s", ifname,
+tap.c:            snprintf(s->down_script, sizeof(s->down_script), "%s", downscript);
+tap.c:            snprintf(s->down_script_arg, sizeof(s->down_script_arg),
+tap.c:    if (tap->has_vhost ? tap->vhost :
+tap.c:        vhostfdname || (tap->has_vhostforce && tap->vhostforce)) {
+tap.c:        options.net_backend = &s->nc;
+tap.c:        if (tap->has_poll_us) {
+tap.c:            options.busyloop_timeout = tap->poll_us;
+tap.c:            if (vhostfd == -1) {
+tap.c:                if (tap->has_vhostforce && tap->vhostforce) {
+tap.c:            vhostfd = open("/dev/vhost-net", O_RDWR);
+tap.c:                if (tap->has_vhostforce && tap->vhostforce) {
+tap.c:        s->vhost_net = vhost_net_init(&options);
+tap.c:        if (!s->vhost_net) {
+tap.c:            if (tap->has_vhostforce && tap->vhostforce) {
+tap.c:    qemu_del_net_client(&s->nc);
+tap.c:            fds[i] = g_strndup(ptr, this - ptr);
+tap.c:    /* for the no-fd, no-helper case */
+tap.c:    assert(netdev->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    tap = &netdev->u.tap;
+tap.c:    queues = tap->has_queues ? tap->queues : 1;
+tap.c:    vhostfdname = tap->vhostfd;
+tap.c:    script = tap->script;
+tap.c:    downscript = tap->downscript;
+tap.c:     * For -netdev, peer is always NULL. */
+tap.c:    if (peer && (tap->has_queues || tap->fds || tap->vhostfds)) {
+tap.c:        return -1;
+tap.c:    if (tap->fd) {
+tap.c:        if (tap->ifname || tap->script || tap->downscript ||
+tap.c:            tap->has_vnet_hdr || tap->helper || tap->has_queues ||
+tap.c:            tap->fds || tap->vhostfds) {
+tap.c:            return -1;
+tap.c:        fd = monitor_fd_param(monitor_cur(), tap->fd, errp);
+tap.c:        if (fd == -1) {
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:    } else if (tap->fds) {
+tap.c:        if (tap->ifname || tap->script || tap->downscript ||
+tap.c:            tap->has_vnet_hdr || tap->helper || tap->has_queues ||
+tap.c:            tap->vhostfd) {
+tap.c:            return -1;
+tap.c:        nfds = get_fds(tap->fds, fds, MAX_TAP_QUEUES);
+tap.c:        if (tap->vhostfds) {
+tap.c:            nvhosts = get_fds(tap->vhostfds, vhost_fds, MAX_TAP_QUEUES);
+tap.c:                ret = -1;
+tap.c:            if (fd == -1) {
+tap.c:                ret = -1;
+tap.c:                    ret = -1;
+tap.c:                ret = -1;
+tap.c:                             tap->vhostfds ? vhost_fds[i] : NULL,
+tap.c:                ret = -1;
+tap.c:    } else if (tap->helper) {
+tap.c:        if (tap->ifname || tap->script || tap->downscript ||
+tap.c:            tap->has_vnet_hdr || tap->has_queues || tap->vhostfds) {
+tap.c:            return -1;
+tap.c:        fd = net_bridge_run_helper(tap->helper,
+tap.c:                                   tap->br ?: DEFAULT_BRIDGE_INTERFACE,
+tap.c:        if (fd == -1) {
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:            return -1;
+tap.c:        if (tap->vhostfds) {
+tap.c:            return -1;
+tap.c:        if (tap->ifname) {
+tap.c:            pstrcpy(ifname, sizeof ifname, tap->ifname);
+tap.c:            if (fd == -1) {
+tap.c:                return -1;
+tap.c:            if (queues > 1 && i == 0 && !tap->ifname) {
+tap.c:                    return -1;
+tap.c:                return -1;
+tap.c:    assert(nc->info->type == NET_CLIENT_DRIVER_TAP);
+tap.c:    return s->vhost_net;
+tap.c:    if (s->enabled) {
+tap.c:        ret = tap_fd_enable(s->fd);
+tap.c:            s->enabled = true;
+tap.c:    if (s->enabled == 0) {
+tap.c:        ret = tap_fd_disable(s->fd);
+tap.c:            s->enabled = false;
+tap_int.h: * Copyright (c) 2003-2008 Fabrice Bellard
+tap_int.h:#include "qapi/qapi-types-net.h"
+trace-events:# vhost-user.c
+trace-events:colo_proxy_main_vnet_info(const char *sta, uint32_t vnet_hdr, int size) ": %s pkt->vnet_hdr_len = %u, pkt->size = %d"
+trace-events:# colo-compare.c
+trace-events:# filter-rewriter.c
+trace.h:#include "trace/trace-net.h"
+util.c: * Copyright (c) 2003-2008 Fabrice Bellard
+util.c:                return -1;
+util.c:            if (*p != ':' && *p != '-') {
+util.c:                return -1;
+util.h: * Copyright (c) 2003-2008 Fabrice Bellard
+util.h:    return a->s6_addr[prefix_len / 8] >> (8 - (prefix_len % 8))
+util.h:        == b->s6_addr[prefix_len / 8] >> (8 - (prefix_len % 8));
+vde.c: * Copyright (c) 2003-2008 Fabrice Bellard
+vde.c:#include "qemu/main-loop.h"
+vde.c:    size = vde_recv(s->vde, (char *)buf, sizeof(buf), 0);
+vde.c:        qemu_send_packet(&s->nc, buf, size);
+vde.c:      ret = vde_send(s->vde, (const char *)buf, size, 0);
+vde.c:    qemu_set_fd_handler(vde_datafd(s->vde), NULL, NULL, NULL);
+vde.c:    vde_close(s->vde);
+vde.c:        return -1;
+vde.c:    s->vde = vde;
+vde.c:    qemu_set_fd_handler(vde_datafd(s->vde), vde_to_qemu, NULL, s);
+vde.c:    assert(netdev->type == NET_CLIENT_DRIVER_VDE);
+vde.c:    vde = &netdev->u.vde;
+vde.c:    if (net_vde_init(peer, "vde", name, vde->sock, vde->port, vde->group,
+vde.c:                     vde->has_mode ? vde->mode : 0700, errp) == -1) {
+vde.c:        return -1;
+vhost-user-stub.c: * vhost-user-stub.c
+vhost-user-stub.c: * See the COPYING file in the top-level directory.
+vhost-user-stub.c:#include "net/vhost-user.h"
+vhost-user-stub.c:#include "qemu/error-report.h"
+vhost-user-stub.c:    error_setg(errp, "vhost-user requires frontend driver virtio-net-*");
+vhost-user-stub.c:    return -1;
+vhost-user.c: * vhost-user.c
+vhost-user.c: * See the COPYING file in the top-level directory.
+vhost-user.c:#include "net/vhost-user.h"
+vhost-user.c:#include "hw/virtio/vhost-user.h"
+vhost-user.c:#include "chardev/char-fe.h"
+vhost-user.c:#include "qapi/qapi-commands-net.h"
+vhost-user.c:#include "qemu/config-file.h"
+vhost-user.c:#include "qemu/error-report.h"
+vhost-user.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:    return s->vhost_net;
+vhost-user.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:    return s->acked_features;
+vhost-user.c:    if (s->vhost_net) {
+vhost-user.c:        uint64_t features = vhost_net_get_acked_features(s->vhost_net);
+vhost-user.c:            s->acked_features = features;
+vhost-user.c:        assert(ncs[i]->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:        if (s->vhost_net) {
+vhost-user.c:            vhost_net_cleanup(s->vhost_net);
+vhost-user.c:        assert(ncs[i]->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:        if (s->vhost_net) {
+vhost-user.c:            vhost_net_cleanup(s->vhost_net);
+vhost-user.c:            g_free(s->vhost_net);
+vhost-user.c:        s->vhost_net = net;
+vhost-user.c:    return -1;
+vhost-user.c:        r = vhost_net_notify_migration_done(s->vhost_net, mac_addr);
+vhost-user.c:    if (s->vhost_net) {
+vhost-user.c:        vhost_net_cleanup(s->vhost_net);
+vhost-user.c:        g_free(s->vhost_net);
+vhost-user.c:        s->vhost_net = NULL;
+vhost-user.c:    if (nc->queue_index == 0) {
+vhost-user.c:        if (s->watch) {
+vhost-user.c:            g_source_remove(s->watch);
+vhost-user.c:            s->watch = 0;
+vhost-user.c:        qemu_chr_fe_deinit(&s->chr, true);
+vhost-user.c:        if (s->vhost_user) {
+vhost-user.c:            vhost_user_cleanup(s->vhost_user);
+vhost-user.c:            g_free(s->vhost_user);
+vhost-user.c:            s->vhost_user = NULL;
+vhost-user.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:    if (!g_str_has_prefix(driver, "virtio-net-")) {
+vhost-user.c:        error_setg(errp, "vhost-user requires frontend driver virtio-net-*");
+vhost-user.c:    qemu_chr_fe_disconnect(&s->chr);
+vhost-user.c:    for (i = queues -1; i >= 0; i--) {
+vhost-user.c:    qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, net_vhost_user_event,
+vhost-user.c:    chr = qemu_chr_fe_get_driver(&s->chr);
+vhost-user.c:    trace_vhost_user_event(chr->label, event);
+vhost-user.c:        if (vhost_user_start(queues, ncs, s->vhost_user) < 0) {
+vhost-user.c:            qemu_chr_fe_disconnect(&s->chr);
+vhost-user.c:        s->watch = qemu_chr_fe_add_watch(&s->chr, G_IO_HUP,
+vhost-user.c:        s->started = true;
+vhost-user.c:        if (s->watch) {
+vhost-user.c:            g_source_remove(s->watch);
+vhost-user.c:            s->watch = 0;
+vhost-user.c:            qemu_chr_fe_set_handlers(&s->chr, NULL, NULL, NULL, NULL,
+vhost-user.c:        qemu_set_info_str(nc, "vhost-user%d to %s", i, chr->label);
+vhost-user.c:        nc->queue_index = i;
+vhost-user.c:            if (!qemu_chr_fe_init(&s->chr, chr, &err) ||
+vhost-user.c:                !vhost_user_init(user, &s->chr, &err)) {
+vhost-user.c:        s->vhost_user = user;
+vhost-user.c:        if (qemu_chr_fe_wait_connected(&s->chr, &err) < 0) {
+vhost-user.c:        qemu_chr_fe_set_handlers(&s->chr, NULL, NULL,
+vhost-user.c:                                 net_vhost_user_event, NULL, nc0->name, NULL,
+vhost-user.c:    } while (!s->started);
+vhost-user.c:    assert(s->vhost_net);
+vhost-user.c:            s->vhost_user = NULL;
+vhost-user.c:    return -1;
+vhost-user.c:    Chardev *chr = qemu_chr_find(opts->chardev);
+vhost-user.c:        error_setg(errp, "chardev \"%s\" not found", opts->chardev);
+vhost-user.c:                   opts->chardev);
+vhost-user.c:                   opts->chardev);
+vhost-user.c:    assert(netdev->type == NET_CLIENT_DRIVER_VHOST_USER);
+vhost-user.c:    vhost_user_opts = &netdev->u.vhost_user;
+vhost-user.c:        return -1;
+vhost-user.c:    queues = vhost_user_opts->has_queues ? vhost_user_opts->queues : 1;
+vhost-user.c:                   "vhost-user number of queues must be in range [1, %d]",
+vhost-user.c:        return -1;
+vhost-vdpa-stub.c: * vhost-vdpa-stub.c
+vhost-vdpa-stub.c: * See the COPYING file in the top-level directory.
+vhost-vdpa-stub.c:#include "net/vhost-vdpa.h"
+vhost-vdpa-stub.c:    error_setg(errp, "vhost-vdpa requires frontend driver virtio-net-*");
+vhost-vdpa-stub.c:    return -1;
+vhost-vdpa.c: * vhost-vdpa.c
+vhost-vdpa.c: * Copyright(c) 2017-2018 Intel Corporation.
+vhost-vdpa.c: * See the COPYING file in the top-level directory.
+vhost-vdpa.c:#include "hw/virtio/virtio-net.h"
+vhost-vdpa.c:#include "net/vhost-vdpa.h"
+vhost-vdpa.c:#include "hw/virtio/vhost-vdpa.h"
+vhost-vdpa.c:#include "qemu/config-file.h"
+vhost-vdpa.c:#include "qemu/error-report.h"
+vhost-vdpa.c:#include "standard-headers/linux/virtio_net.h"
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    return s->vhost_net;
+vhost-vdpa.c:                         VIRTIO_TRANSPORT_F_END - VIRTIO_TRANSPORT_F_START);
+vhost-vdpa.c:    hdev = (struct vhost_dev *)&net->dev;
+vhost-vdpa.c:    ret = hdev->vhost_ops->vhost_get_device_id(hdev, &device_id);
+vhost-vdpa.c:        return -ENOTSUP;
+vhost-vdpa.c:    assert(ncs->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    s->vhost_net = net;
+vhost-vdpa.c:    return -1;
+vhost-vdpa.c:    struct vhost_dev *dev = &s->vhost_net->dev;
+vhost-vdpa.c:    qemu_vfree(s->cvq_cmd_out_buffer);
+vhost-vdpa.c:    qemu_vfree(s->status);
+vhost-vdpa.c:    if (dev->vq_index + dev->nvqs == dev->vq_index_end) {
+vhost-vdpa.c:        g_clear_pointer(&s->vhost_vdpa.iova_tree, vhost_iova_tree_delete);
+vhost-vdpa.c:    if (s->vhost_net) {
+vhost-vdpa.c:        vhost_net_cleanup(s->vhost_net);
+vhost-vdpa.c:        g_free(s->vhost_net);
+vhost-vdpa.c:        s->vhost_net = NULL;
+vhost-vdpa.c:     if (s->vhost_vdpa.device_fd >= 0) {
+vhost-vdpa.c:        qemu_close(s->vhost_vdpa.device_fd);
+vhost-vdpa.c:        s->vhost_vdpa.device_fd = -1;
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    features = vhost_net_get_features(s->vhost_net, features);
+vhost-vdpa.c:    if (!g_str_has_prefix(driver, "virtio-net-")) {
+vhost-vdpa.c:        error_setg(errp, "vhost-vdpa requires frontend driver virtio-net-*");
+vhost-vdpa.c:    r = ioctl(v->device_fd, VHOST_VDPA_SET_GROUP_ASID, &asid);
+vhost-vdpa.c:    VhostIOVATree *tree = v->iova_tree;
+vhost-vdpa.c:    r = vhost_vdpa_dma_unmap(v, v->address_space_id, map->iova, map->size + 1);
+vhost-vdpa.c:    map.size = size - 1;
+vhost-vdpa.c:    r = vhost_iova_tree_map_alloc(v->iova_tree, &map);
+vhost-vdpa.c:    r = vhost_vdpa_dma_map(v, v->address_space_id, map.iova,
+vhost-vdpa.c:    vhost_iova_tree_remove(v->iova_tree, map);
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    v = &s->vhost_vdpa;
+vhost-vdpa.c:    v->shadow_data = s->always_svq;
+vhost-vdpa.c:    v->shadow_vqs_enabled = s->always_svq;
+vhost-vdpa.c:    s->vhost_vdpa.address_space_id = VHOST_VDPA_GUEST_PA_ASID;
+vhost-vdpa.c:    if (s->always_svq) {
+vhost-vdpa.c:     * will be blocked as long as vhost-vdpa backends will not offer _F_LOG.
+vhost-vdpa.c:     * Calling VHOST_GET_BACKEND_FEATURES as they are not available in v->dev
+vhost-vdpa.c:    r = ioctl(v->device_fd, VHOST_GET_BACKEND_FEATURES, &backend_features);
+vhost-vdpa.c:        return -1;
+vhost-vdpa.c:        !vhost_vdpa_net_valid_svq_features(v->dev->features, NULL)) {
+vhost-vdpa.c:    cvq_index = v->dev->vq_index_end - 1;
+vhost-vdpa.c:    cvq_group = vhost_vdpa_get_vring_group(v->device_fd, cvq_index);
+vhost-vdpa.c:        int64_t group = vhost_vdpa_get_vring_group(v->device_fd, i);
+vhost-vdpa.c:    v->iova_tree = vhost_iova_tree_new(v->iova_range.first,
+vhost-vdpa.c:                                       v->iova_range.last);
+vhost-vdpa.c:    v->shadow_vqs_enabled = true;
+vhost-vdpa.c:    s->vhost_vdpa.address_space_id = VHOST_VDPA_NET_CVQ_ASID;
+vhost-vdpa.c:    if (!s->vhost_vdpa.shadow_vqs_enabled) {
+vhost-vdpa.c:    r = vhost_vdpa_cvq_map_buf(&s->vhost_vdpa, s->cvq_cmd_out_buffer,
+vhost-vdpa.c:    r = vhost_vdpa_cvq_map_buf(&s->vhost_vdpa, s->status,
+vhost-vdpa.c:        vhost_vdpa_cvq_unmap_buf(&s->vhost_vdpa, s->cvq_cmd_out_buffer);
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    if (s->vhost_vdpa.shadow_vqs_enabled) {
+vhost-vdpa.c:        vhost_vdpa_cvq_unmap_buf(&s->vhost_vdpa, s->cvq_cmd_out_buffer);
+vhost-vdpa.c:        vhost_vdpa_cvq_unmap_buf(&s->vhost_vdpa, s->status);
+vhost-vdpa.c:        if (!s->always_svq) {
+vhost-vdpa.c:            g_clear_pointer(&s->vhost_vdpa.iova_tree, vhost_iova_tree_delete);
+vhost-vdpa.c:        .iov_base = s->cvq_cmd_out_buffer,
+vhost-vdpa.c:        .iov_base = s->status,
+vhost-vdpa.c:    VhostShadowVirtqueue *svq = g_ptr_array_index(s->vhost_vdpa.shadow_vqs, 0);
+vhost-vdpa.c:        if (unlikely(r == -ENOSPC)) {
+vhost-vdpa.c:    assert(data_size < vhost_vdpa_net_cvq_cmd_page_len() - sizeof(ctrl));
+vhost-vdpa.c:    memcpy(s->cvq_cmd_out_buffer, &ctrl, sizeof(ctrl));
+vhost-vdpa.c:    memcpy(s->cvq_cmd_out_buffer + sizeof(ctrl), data, data_size);
+vhost-vdpa.c:    uint64_t features = n->parent_obj.guest_features;
+vhost-vdpa.c:                                                  n->mac, sizeof(n->mac));
+vhost-vdpa.c:        return *s->status != VIRTIO_NET_OK;
+vhost-vdpa.c:    uint64_t features = n->parent_obj.guest_features;
+vhost-vdpa.c:    mq.virtqueue_pairs = cpu_to_le16(n->curr_queue_pairs);
+vhost-vdpa.c:    return *s->status != VIRTIO_NET_OK;
+vhost-vdpa.c:    struct vhost_vdpa *v = &s->vhost_vdpa;
+vhost-vdpa.c:    assert(nc->info->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    if (!v->shadow_vqs_enabled) {
+vhost-vdpa.c:    n = VIRTIO_NET(v->dev->vdev);
+vhost-vdpa.c:        .iov_base = s->cvq_cmd_out_buffer,
+vhost-vdpa.c:    ssize_t dev_written = -EINVAL;
+vhost-vdpa.c:    out.iov_len = iov_to_buf(elem->out_sg, elem->out_num, 0,
+vhost-vdpa.c:                             s->cvq_cmd_out_buffer,
+vhost-vdpa.c:    if (*(uint8_t *)s->cvq_cmd_out_buffer == VIRTIO_NET_CTRL_ANNOUNCE) {
+vhost-vdpa.c:        *s->status = VIRTIO_NET_OK;
+vhost-vdpa.c:    if (*s->status != VIRTIO_NET_OK) {
+vhost-vdpa.c:    virtio_net_handle_ctrl_iov(svq->vdev, &in, 1, &out, 1);
+vhost-vdpa.c:    in_len = iov_from_buf(elem->in_sg, elem->in_num, 0, &status,
+vhost-vdpa.c:    s->vhost_vdpa.device_fd = vdpa_device_fd;
+vhost-vdpa.c:    s->vhost_vdpa.index = queue_pair_index;
+vhost-vdpa.c:    s->always_svq = svq;
+vhost-vdpa.c:    s->vhost_vdpa.shadow_vqs_enabled = svq;
+vhost-vdpa.c:    s->vhost_vdpa.iova_range = iova_range;
+vhost-vdpa.c:    s->vhost_vdpa.shadow_data = svq;
+vhost-vdpa.c:    s->vhost_vdpa.iova_tree = iova_tree;
+vhost-vdpa.c:        s->cvq_cmd_out_buffer = qemu_memalign(qemu_real_host_page_size(),
+vhost-vdpa.c:        memset(s->cvq_cmd_out_buffer, 0, vhost_vdpa_net_cvq_cmd_page_len());
+vhost-vdpa.c:        s->status = qemu_memalign(qemu_real_host_page_size(),
+vhost-vdpa.c:        memset(s->status, 0, vhost_vdpa_net_cvq_cmd_page_len());
+vhost-vdpa.c:        s->vhost_vdpa.shadow_vq_ops = &vhost_vdpa_net_svq_ops;
+vhost-vdpa.c:        s->vhost_vdpa.shadow_vq_ops_opaque = s;
+vhost-vdpa.c:    ret = vhost_vdpa_add(nc, (void *)&s->vhost_vdpa, queue_pair_index, nvqs);
+vhost-vdpa.c:                         "Fail to query features from vhost-vDPA device");
+vhost-vdpa.c:        config->off = offsetof(struct virtio_net_config, max_virtqueue_pairs);
+vhost-vdpa.c:        config->len = sizeof(*max_queue_pairs);
+vhost-vdpa.c:            error_setg(errp, "Fail to get config from vhost-vDPA device");
+vhost-vdpa.c:            return -ret;
+vhost-vdpa.c:        max_queue_pairs = (__virtio16 *)&config->buf;
+vhost-vdpa.c:    assert(netdev->type == NET_CLIENT_DRIVER_VHOST_VDPA);
+vhost-vdpa.c:    opts = &netdev->u.vhost_vdpa;
+vhost-vdpa.c:    if (!opts->vhostdev && !opts->vhostfd) {
+vhost-vdpa.c:                   "vhost-vdpa: neither vhostdev= nor vhostfd= was specified");
+vhost-vdpa.c:        return -1;
+vhost-vdpa.c:    if (opts->vhostdev && opts->vhostfd) {
+vhost-vdpa.c:                   "vhost-vdpa: vhostdev= and vhostfd= are mutually exclusive");
+vhost-vdpa.c:        return -1;
+vhost-vdpa.c:    if (opts->vhostdev) {
+vhost-vdpa.c:        vdpa_device_fd = qemu_open(opts->vhostdev, O_RDWR, errp);
+vhost-vdpa.c:        if (vdpa_device_fd == -1) {
+vhost-vdpa.c:            return -errno;
+vhost-vdpa.c:        vdpa_device_fd = monitor_fd_param(monitor_cur(), opts->vhostfd, errp);
+vhost-vdpa.c:        if (vdpa_device_fd == -1) {
+vhost-vdpa.c:            error_prepend(errp, "vhost-vdpa: unable to parse vhostfd: ");
+vhost-vdpa.c:            return -1;
+vhost-vdpa.c:        error_setg(errp, "vhost-vdpa: get iova range failed: %s",
+vhost-vdpa.c:                   strerror(-r));
+vhost-vdpa.c:    if (opts->x_svq) {
+vhost-vdpa.c:                                     vdpa_device_fd, i, 2, true, opts->x_svq,
+vhost-vdpa.c:                                 opts->x_svq, iova_range, iova_tree);
+vhost-vdpa.c:        for (i--; i >= 0; i--) {
+vhost-vdpa.c:    return -1;
+vmnet-bridged.m: * vmnet-bridged.m
+vmnet-bridged.m: * See the COPYING file in the top-level directory.
+vmnet-bridged.m:#include "qapi/qapi-types-net.h"
+vmnet-bridged.m:    const NetdevVmnetBridgedOptions *options = &(netdev->u.vmnet_bridged);
+vmnet-bridged.m:    if (!validate_ifname(options->ifname)) {
+vmnet-bridged.m:                       options->ifname,
+vmnet-bridged.m:                       options->ifname);
+vmnet-bridged.m:    if (options->has_isolated) {
+vmnet-bridged.m:                   "vmnet-bridged.isolated feature is "
+vmnet-bridged.m:    const NetdevVmnetBridgedOptions *options = &(netdev->u.vmnet_bridged);
+vmnet-bridged.m:                              options->ifname);
+vmnet-bridged.m:                            options->isolated);
+vmnet-bridged.m:                                             peer, "vmnet-bridged", name);
+vmnet-bridged.m:    int result = -1;
+vmnet-common.m: * vmnet-common.m - network client wrapper for Apple vmnet.framework
+vmnet-common.m: * See the COPYING file in the top-level directory.
+vmnet-common.m:#include "qemu/main-loop.h"
+vmnet-common.m:#include "qapi/qapi-types-net.h"
+vmnet-common.m:#include "qemu/error-report.h"
+vmnet-common.m:    if (size > s->max_packet_size) {
+vmnet-common.m:            s->max_packet_size);
+vmnet-common.m:        return -1;
+vmnet-common.m:    if_status = vmnet_write(s->vmnet_if, &packet, &pkt_cnt);
+vmnet-common.m:        return -1;
+vmnet-common.m: * -1 on error
+vmnet-common.m:    assert(s->packets_send_current_pos == s->packets_send_end_pos);
+vmnet-common.m:    struct vmpktdesc *packets = s->packets_buf;
+vmnet-common.m:    s->packets_send_current_pos = 0;
+vmnet-common.m:    s->packets_send_end_pos = VMNET_PACKETS_LIMIT;
+vmnet-common.m:    for (i = 0; i < s->packets_send_end_pos; ++i) {
+vmnet-common.m:        packets[i].vm_pkt_size = s->max_packet_size;
+vmnet-common.m:    status = vmnet_read(s->vmnet_if, packets, &s->packets_send_end_pos);
+vmnet-common.m:        s->packets_send_current_pos = 0;
+vmnet-common.m:        s->packets_send_end_pos = 0;
+vmnet-common.m:        return -1;
+vmnet-common.m:    return s->packets_send_end_pos;
+vmnet-common.m:    while (s->packets_send_current_pos < s->packets_send_end_pos) {
+vmnet-common.m:        ssize_t size = qemu_send_packet_async(&s->nc,
+vmnet-common.m:                                      s->iov_buf[s->packets_send_current_pos].iov_base,
+vmnet-common.m:                                      s->packets_buf[s->packets_send_current_pos].vm_pkt_size,
+vmnet-common.m:            /* QEMU is not ready to consume more packets -
+vmnet-common.m:        ++s->packets_send_current_pos;
+vmnet-common.m: * The process of transferring packets is three-staged:
+vmnet-common.m:     * Do nothing if QEMU is not ready - wait
+vmnet-common.m:    if (s->packets_send_current_pos < s->packets_send_end_pos) {
+vmnet-common.m:    ++s->packets_send_current_pos;
+vmnet-common.m:    if (s->packets_send_current_pos < s->packets_send_end_pos) {
+vmnet-common.m:        qemu_bh_schedule(s->send_bh);
+vmnet-common.m:    struct vmpktdesc *packets = s->packets_buf;
+vmnet-common.m:    struct iovec *iov = s->iov_buf;
+vmnet-common.m:        iov[i].iov_len = s->max_packet_size;
+vmnet-common.m:    s->if_queue = dispatch_queue_create(
+vmnet-common.m:    s->vmnet_if = vmnet_start_interface(
+vmnet-common.m:        s->if_queue,
+vmnet-common.m:            s->mtu = xpc_dictionary_get_uint64(
+vmnet-common.m:            s->max_packet_size = xpc_dictionary_get_uint64(
+vmnet-common.m:    if (s->vmnet_if == NULL) {
+vmnet-common.m:        dispatch_release(s->if_queue);
+vmnet-common.m:        return -1;
+vmnet-common.m:        dispatch_release(s->if_queue);
+vmnet-common.m:        return -1;
+vmnet-common.m:    s->send_bh = aio_bh_new(qemu_get_aio_context(), vmnet_send_bh, nc);
+vmnet-common.m:    s->packets_send_current_pos = 0;
+vmnet-common.m:    s->packets_send_end_pos = 0;
+vmnet-common.m:        s->vmnet_if,
+vmnet-common.m:        s->if_queue,
+vmnet-common.m:            qemu_bh_schedule(s->send_bh);
+vmnet-common.m:    if (s->vmnet_if == NULL) {
+vmnet-common.m:        s->vmnet_if,
+vmnet-common.m:        s->if_queue,
+vmnet-common.m:    qemu_bh_delete(s->send_bh);
+vmnet-common.m:    dispatch_release(s->if_queue);
+vmnet-common.m:        g_free(s->iov_buf[i].iov_base);
+vmnet-host.c: * vmnet-host.c
+vmnet-host.c: * See the COPYING file in the top-level directory.
+vmnet-host.c:#include "qapi/qapi-types-net.h"
+vmnet-host.c:    const NetdevVmnetHostOptions *options = &(netdev->u.vmnet_host);
+vmnet-host.c:    if (options->net_uuid &&
+vmnet-host.c:        qemu_uuid_parse(options->net_uuid, &net_uuid) < 0) {
+vmnet-host.c:        error_setg(errp, "Invalid UUID provided in 'net-uuid'");
+vmnet-host.c:    if (options->has_isolated) {
+vmnet-host.c:                   "vmnet-host.isolated feature is "
+vmnet-host.c:    if (options->net_uuid) {
+vmnet-host.c:                   "vmnet-host.net-uuid feature is "
+vmnet-host.c:    if ((options->start_address ||
+vmnet-host.c:         options->end_address ||
+vmnet-host.c:         options->subnet_mask) &&
+vmnet-host.c:        !(options->start_address &&
+vmnet-host.c:          options->end_address &&
+vmnet-host.c:          options->subnet_mask)) {
+vmnet-host.c:                   "'start-address', 'end-address', 'subnet-mask' "
+vmnet-host.c:    const NetdevVmnetHostOptions *options = &(netdev->u.vmnet_host);
+vmnet-host.c:                            options->isolated);
+vmnet-host.c:    if (options->net_uuid) {
+vmnet-host.c:        qemu_uuid_parse(options->net_uuid, &net_uuid);
+vmnet-host.c:    if (options->start_address) {
+vmnet-host.c:                                  options->start_address);
+vmnet-host.c:                                  options->end_address);
+vmnet-host.c:                                  options->subnet_mask);
+vmnet-host.c:                                             peer, "vmnet-host", name);
+vmnet-host.c:    int result = -1;
+vmnet-shared.c: * vmnet-shared.c
+vmnet-shared.c: * See the COPYING file in the top-level directory.
+vmnet-shared.c:#include "qapi/qapi-types-net.h"
+vmnet-shared.c:    const NetdevVmnetSharedOptions *options = &(netdev->u.vmnet_shared);
+vmnet-shared.c:    if (options->has_isolated) {
+vmnet-shared.c:                   "vmnet-shared.isolated feature is "
+vmnet-shared.c:    if ((options->start_address ||
+vmnet-shared.c:         options->end_address ||
+vmnet-shared.c:         options->subnet_mask) &&
+vmnet-shared.c:        !(options->start_address &&
+vmnet-shared.c:          options->end_address &&
+vmnet-shared.c:          options->subnet_mask)) {
+vmnet-shared.c:                   "'start-address', 'end-address', 'subnet-mask' "
+vmnet-shared.c:    const NetdevVmnetSharedOptions *options = &(netdev->u.vmnet_shared);
+vmnet-shared.c:    if (options->nat66_prefix) {
+vmnet-shared.c:                                  options->nat66_prefix);
+vmnet-shared.c:    if (options->start_address) {
+vmnet-shared.c:                                  options->start_address);
+vmnet-shared.c:                                  options->end_address);
+vmnet-shared.c:                                  options->subnet_mask);
+vmnet-shared.c:        options->isolated
+vmnet-shared.c:                                             peer, "vmnet-shared", name);
+vmnet-shared.c:    int result = -1;
+vmnet_int.h: * See the COPYING file in the top-level directory.

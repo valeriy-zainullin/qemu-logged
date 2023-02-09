@@ -115,6 +115,22 @@ static inline void slirp_smb_cleanup(SlirpState *s) { }
 static ssize_t net_slirp_send_packet(const void *pkt, size_t pkt_len,
                                      void *opaque)
 {
+    printf("QEMU mod: net_slirp_send_packet called.\n");
+
+    {
+        printf("QEMU mod: net_slirp_send_packet, content = \"");
+        char* buffer = (char*) pkt;
+        size_t buffer_size = pkt_len;
+        for (size_t i = 0; i < buffer_size; ++i) {
+            if (('a' <= buffer[i] && buffer[i] <= 'z') || ('A' <= buffer[i] && buffer[i] <= 'Z') || ('0' <= buffer[i] && buffer[i] <= '9')) {
+                printf("%c", buffer[i]);
+            } else {
+                printf("\\%02x", (unsigned) (* (uint8_t*) &buffer[i]));                
+            }
+        }
+        printf("\".\n");
+    }
+
     SlirpState *s = opaque;
     uint8_t min_pkt[ETH_ZLEN];
     size_t min_pktsz = sizeof(min_pkt);

@@ -54,7 +54,7 @@ enum {
     DEBUG_RXFILTER,     DEBUG_PHY,      DEBUG_NOTYET,
 };
 #define DBGBIT(x)    (1<<DEBUG_##x)
-static int debugflags = DBGBIT(TXERR) | DBGBIT(GENERAL) | DBGBIT(TX) | DBGBIT(INTERRUPT) | DBGBIT(IO) | DBGBIT(NOTYET) | DBGBIT(TXSUM);
+static int debugflags = DBGBIT(TXERR) | DBGBIT(GENERAL) | DBGBIT(TX) | DBGBIT(INTERRUPT) | DBGBIT(IO) | DBGBIT(NOTYET) | DBGBIT(TXSUM) | DBGBIT(RXERR) | DBGBIT(RX);
 
 #define DBGOUT(what, fmt, ...) do { \
     if (debugflags & DBGBIT(what)) \
@@ -845,32 +845,42 @@ start_xmit(E1000State *s)
 static int
 receive_filter(E1000State *s, const uint8_t *buf, int size)
 {
+    printf("QEMU mod: receive_filter called.\n");
     uint32_t rctl = s->mac_reg[RCTL];
     int isbcast = !memcmp(buf, bcast, sizeof bcast), ismcast = (buf[0] & 1);
 
     if (e1000x_is_vlan_packet(buf, le16_to_cpu(s->mac_reg[VET])) &&
         e1000x_vlan_rx_filter_enabled(s->mac_reg)) {
+        printf("QEMU mod: receive_filter #1 taken.\n");
         uint16_t vid = lduw_be_p(buf + 14);
         uint32_t vfta = ldl_le_p((uint32_t*)(s->mac_reg + VFTA) +
                                  ((vid >> 5) & 0x7f));
-        if ((vfta & (1 << (vid & 0x1f))) == 0)
+        if ((vfta & (1 << (vid & 0x1f))) == 0) {
+            printf("QEMU mod: receive_filter #2 taken.\n");
             return 0;
+        }
     }
 
+    printf("QEMU mod: receive_filter #3 taken.\n");
+
     if (!isbcast && !ismcast && (rctl & E1000_RCTL_UPE)) { /* promiscuous ucast */
+        printf("QEMU mod: receive_filter #4 taken.\n");
         return 1;
     }
 
     if (ismcast && (rctl & E1000_RCTL_MPE)) {          /* promiscuous mcast */
+        printf("QEMU mod: receive_filter #5 taken.\n");
         e1000x_inc_reg_if_not_full(s->mac_reg, MPRC);
         return 1;
     }
 
     if (isbcast && (rctl & E1000_RCTL_BAM)) {          /* broadcast enabled */
+        printf("QEMU mod: receive_filter #6 taken.\n");
         e1000x_inc_reg_if_not_full(s->mac_reg, BPRC);
         return 1;
     }
 
+    printf("QEMU mod: receive_filter #7 taken.\n");
     return e1000x_rx_group_filter(s->mac_reg, buf);
 }
 
@@ -944,6 +954,19 @@ e1000_receiver_overrun(E1000State *s, size_t size)
 static ssize_t
 e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
 {
+    #if !defined(RETURN_ADDR_OFFSET_PRINT)
+        #define RETURN_ADDR_OFFSET_PRINT(func) \
+        { \
+            int64_t value = (int64_t) (uint64_t) __builtin_return_address(0) - (int64_t) (uint64_t) func; \
+            if (value < 0) { \
+                printf("QEMU mod: %s, return_address - func_addr = -0x%llx.\n", __func__, (unsigned long long) (-value)); \
+            } else { \
+                printf("QEMU mod: %s, return_address - func_addr = 0x%llx.\n", __func__, (unsigned long long) value); \
+            } \
+        }
+    #endif
+    RETURN_ADDR_OFFSET_PRINT(e1000_receive_iov);
+
     E1000State *s = qemu_get_nic_opaque(nc);
     PCIDevice *d = PCI_DEVICE(s);
     struct e1000_rx_desc desc;
@@ -964,15 +987,18 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
     printf("QEMU mod: e1000_receive_iov called.\n");
 
     if (!e1000x_hw_rx_enabled(s->mac_reg)) {
+        printf("QEMU mod: e1000_receive_iov #1 taken.\n");
         return -1;
     }
 
     if (timer_pending(s->flush_queue_timer)) {
+        printf("QEMU mod: e1000_receive_iov #2 taken.\n");
         return 0;
     }
 
     /* Pad to minimum Ethernet frame length */
     if (size < sizeof(min_buf)) {
+        printf("QEMU mod: e1000_receive_iov #3 taken.\n");
         iov_to_buf(iov, iovcnt, 0, min_buf, size);
         memset(&min_buf[size], 0, sizeof(min_buf) - size);
         min_iov.iov_base = filter_buf = min_buf;
@@ -980,6 +1006,7 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
         iovcnt = 1;
         iov = &min_iov;
     } else if (iov->iov_len < MAXIMUM_ETHERNET_HDR_LEN) {
+        printf("QEMU mod: e1000_receive_iov #4 taken.\n");
         /* This is very unlikely, but may happen. */
         iov_to_buf(iov, iovcnt, 0, min_buf, MAXIMUM_ETHERNET_HDR_LEN);
         filter_buf = min_buf;
@@ -987,20 +1014,25 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
 
     /* Discard oversized packets if !LPE and !SBP. */
     if (e1000x_is_oversized(s->mac_reg, size)) {
+        printf("QEMU mod: e1000_receive_iov #5 taken.\n");
         return size;
     }
 
     if (!receive_filter(s, filter_buf, size)) {
+        printf("QEMU mod: e1000_receive_iov #6 taken.\n");
         return size;
     }
 
     if (e1000x_vlan_enabled(s->mac_reg) &&
         e1000x_is_vlan_packet(filter_buf, le16_to_cpu(s->mac_reg[VET]))) {
+        printf("QEMU mod: e1000_receive_iov #7 taken.\n");
         vlan_special = cpu_to_le16(lduw_be_p(filter_buf + 14));
         iov_ofs = 4;
         if (filter_buf == iov->iov_base) {
+            printf("QEMU mod: e1000_receive_iov #8 taken.\n");
             memmove(filter_buf + 4, filter_buf, 12);
         } else {
+            printf("QEMU mod: e1000_receive_iov #8 taken.\n");
             iov_from_buf(iov, iovcnt, 4, filter_buf, 12);
             while (iov->iov_len <= iov_ofs) {
                 iov_ofs -= iov->iov_len;
@@ -1015,9 +1047,12 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
     desc_offset = 0;
     total_size = size + e1000x_fcs_len(s->mac_reg);
     if (!e1000_has_rxbufs(s, total_size)) {
+        printf("QEMU mod: e1000_receive_iov #11 taken.\n");
         e1000_receiver_overrun(s, total_size);
         return -1;
     }
+    printf("QEMU mod: e1000_receive_iov #12 taken.\n");
+    printf("QEMU mod: received packet, content = \"");
     do {
         desc_size = total_size - desc_offset;
         if (desc_size > s->rxbuf_size) {
@@ -1038,6 +1073,16 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
                 do {
                     iov_copy = MIN(copy_size, iov->iov_len - iov_ofs);
                     pci_dma_write(d, ba, iov->iov_base + iov_ofs, iov_copy);
+
+                    char* buffer = (char*) (iov->iov_base + iov_ofs);
+                    for (size_t i = 0; i < iov_copy; ++i) {
+                        if (('a' <= buffer[i] && buffer[i] <= 'z') || ('A' <= buffer[i] && buffer[i] <= 'Z') || ('0' <= buffer[i] && buffer[i] <= '9')) {
+                            printf("%c", buffer[i]);
+                        } else {
+                            printf("\\%02x", (unsigned) (* (uint8_t*) &buffer[i]));                
+                        }
+                    }
+
                     copy_size -= iov_copy;
                     ba += iov_copy;
                     iov_ofs += iov_copy;
@@ -1059,6 +1104,9 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
         } else { // as per intel docs; skip descriptors with null buf addr
             DBGOUT(RX, "Null RX descriptor!!\n");
         }
+
+        printf("\".\n");
+
         pci_dma_write(d, base, &desc, sizeof(desc));
         desc.status |= (vlan_status | E1000_RXD_STAT_DD);
         pci_dma_write(d, base + offsetof(struct e1000_rx_desc, status),
@@ -1072,6 +1120,7 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
             DBGOUT(RXERR, "RDH wraparound @%x, RDT %x, RDLEN %x\n",
                    rdh_start, s->mac_reg[RDT], s->mac_reg[RDLEN]);
             e1000_receiver_overrun(s, total_size);
+            printf("QEMU mod: e1000_receive_iov #13 taken.\n");
             return -1;
         }
     } while (desc_offset < total_size);
@@ -1079,13 +1128,15 @@ e1000_receive_iov(NetClientState *nc, const struct iovec *iov, int iovcnt)
     e1000x_update_rx_total_stats(s->mac_reg, size, total_size);
 
     n = E1000_ICS_RXT0;
-    if ((rdt = s->mac_reg[RDT]) < s->mac_reg[RDH])
+    if ((rdt = s->mac_reg[RDT]) < s->mac_reg[RDH]) 
         rdt += s->mac_reg[RDLEN] / sizeof(desc);
     if (((rdt - s->mac_reg[RDH]) * sizeof(desc)) <= s->mac_reg[RDLEN] >>
         s->rxbuf_min_shift)
         n |= E1000_ICS_RXDMT0;
 
     set_ics(s, 0, n);
+
+    printf("QEMU mod: e1000_receive_iov #14 taken.\n");
 
     return size;
 }
